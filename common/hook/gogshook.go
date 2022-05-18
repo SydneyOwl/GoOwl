@@ -3,9 +3,9 @@ package hook
 type GogsHook struct {
 	// branch
 	Ref string
-	//Before inst. HASHBEFOREACTION.
+	//Before refers to hash before push.
 	Before string
-	//After inst. hashAfterAction.
+	//After refers to hash after push.
 	After  string
 	Pusher GogsPusher
 }
