@@ -1,0 +1,132 @@
+name: GoOwlBuild
+on:
+  push:
+    branches: [main]
+    tags: [v*]
+jobs:
+  create-release:
+    name: Create release
+    if: ${{ contains(github.ref, 'v') }}
+    runs-on: ubuntu-latest
+    outputs: 
+      upload_url: ${{ steps.create_release.outputs.upload_url }} 
+    steps:
+      - run: echo Release ${{ github.ref }}
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        with: 
+          tag_name: ${{ github.ref }}
+          release_name: GoOwl ${{ github.ref }}
+          draft: false
+          prerelease: false
+  build:
+    name: Build-${{ matrix.os }}-${{ matrix.GOARCH }}
+    needs: create-release
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os:
+          - windows-latest
+          - ubuntu-latest
+          - macos-latest
+        GOARCH:
+          - amd64 
+        include:
+          - os: ubuntu-latest
+            GOARCH: "386"
+          - os: ubuntu-latest
+            GOARCH: "arm"
+          - os: ubuntu-latest
+            GOARCH: "arm64"
+          - os: macos-latest 
+            GOARCH: "arm64"
+    steps:
+      - name: Set up Go 1.18
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.18
+      - name: Check out
+        uses: actions/checkout@v3
+
+      - name: Get git tag ref
+        run: git fetch --prune --unshallow --tags
+
+      - name: go mod tidy
+        run: go mod tidy
+
+      - name: Build on Linux
+        if: ${{ matrix.os == 'ubuntu-latest' }} 
+        env:
+          GOARCH: ${{ matrix.GOARCH }}
+          CGO_ENABLE: 0
+        run: go build GoOwl.go
+
+      - name: Upload GoOwl on linux
+        if: ${{ matrix.os == 'ubuntu-latest' }} 
+        uses: actions/upload-artifact@v2
+        with:
+          name: GoOwl-${{ matrix.GOARCH }}
+          path: GoOwl
+
+      - name: Build on Windows
+        if: ${{ matrix.os == 'windows-latest' }}
+        env:
+          GOARCH: ${{ matrix.GOARCH }}
+        run: go build GoOwl.go
+      
+      - name: Upload GoOwl.exe on Windows
+        if: ${{ matrix.os == 'windows-latest' }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: GoOwl-${{ matrix.GOARCH }}.exe
+          path: GoOwl.exe
+      
+      - name: Build on macOS
+        if: ${{ matrix.os == 'macos-latest' }}
+        env:
+          GOARCH: ${{ matrix.GOARCH }}
+        run: go build GoOwl.go
+      
+      - name: Upload GoOwl on macOS
+        if: ${{ matrix.os == 'macos-latest' }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: GoOwl-MacOS-${{ matrix.GOARCH }}
+          path: GoOwl
+
+      - name: Upload assets for linux
+        if: ${{ matrix.os == 'ubuntu-latest' && contains(github.ref, 'v') }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: GoOwl
+          asset_name: GoOwl-${{ matrix.GOARCH }}
+          asset_content_type: application/octet-stream
+
+
+      - name: Upload assets for macOS
+        if: ${{ matrix.os == 'macos-latest' && contains(github.ref, 'v') }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: GoOwl
+          asset_name: GoOwl-macOS-${{ matrix.GOARCH }}
+          asset_content_type: application/octet-stream
+
+      - name: Upload assets for windows
+        if: ${{ matrix.os == 'windows-latest' && contains(github.ref, 'v') }}
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: GoOwl.exe
+          asset_name: GoOwl-${{ matrix.GOARCH }}.exe
+          asset_content_type: application/octet-stream
