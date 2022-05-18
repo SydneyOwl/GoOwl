@@ -28,8 +28,3 @@ func initgroup() {
 		}
 	}
 }
-
-// //How to add group
-// func Testv1group(v1Group *gin.RouterGroup) {
-// 	v1Group.POST("/test", apis.Test)
-// }
