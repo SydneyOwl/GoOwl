@@ -24,7 +24,6 @@ jobs:
           prerelease: false
   build:
     name: Build-${{ matrix.os }}-${{ matrix.GOARCH }}
-    needs: create-release
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
