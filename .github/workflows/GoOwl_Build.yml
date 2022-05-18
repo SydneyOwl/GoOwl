@@ -24,7 +24,6 @@ jobs:
           prerelease: false
   build:
     name: Build-${{ matrix.os }}-${{ matrix.GOARCH }}
-    needs: create-release
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -65,6 +64,7 @@ jobs:
         run: go build GoOwl.go
 
       - name: Upload GoOwl on linux
+        needs: create-release
         if: ${{ matrix.os == 'ubuntu-latest' }} 
         uses: actions/upload-artifact@v2
         with:
@@ -78,6 +78,7 @@ jobs:
         run: go build GoOwl.go
       
       - name: Upload GoOwl.exe on Windows
+        needs: create-release
         if: ${{ matrix.os == 'windows-latest' }}
         uses: actions/upload-artifact@v2
         with:
@@ -91,6 +92,7 @@ jobs:
         run: go build GoOwl.go
       
       - name: Upload GoOwl on macOS
+        needs: create-release
         if: ${{ matrix.os == 'macos-latest' }}
         uses: actions/upload-artifact@v2
         with:
@@ -98,6 +100,7 @@ jobs:
           path: GoOwl
 
       - name: Upload assets for linux
+        needs: create-release
         if: ${{ matrix.os == 'ubuntu-latest' && contains(github.ref, 'v') }}
         uses: actions/upload-release-asset@v1
         env:
@@ -110,6 +113,7 @@ jobs:
 
 
       - name: Upload assets for macOS
+        needs: create-release
         if: ${{ matrix.os == 'macos-latest' && contains(github.ref, 'v') }}
         uses: actions/upload-release-asset@v1
         env:
@@ -121,6 +125,7 @@ jobs:
           asset_content_type: application/octet-stream
 
       - name: Upload assets for windows
+        needs: create-release
         if: ${{ matrix.os == 'windows-latest' && contains(github.ref, 'v') }}
         uses: actions/upload-release-asset@v1
         env:
