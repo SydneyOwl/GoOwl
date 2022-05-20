@@ -14,18 +14,6 @@ import (
 	"github.com/sydneyowl/GoOwl/common/file"
 )
 
-// var (
-// 	BuildScriptEmptyError      = errors.New("Build script does not exist!")
-// 	RepoPathEmptyError         = errors.New("Repo path is empty!")
-// 	RepoAuthInfoNotEnoughError = errors.New("Authinfo not enough!")
-// 	SshkeyNotExistError        = errors.New("Ssh-key path does not exist!")
-// 	BranchNotSpecifiedError    = errors.New("Branch not specified!")
-// 	HookTypeNotSpecifiedError  = errors.New("Hooktype not specified!")
-// 	MixUseOfSshAndHttpError     = errors.New("Unknown Err occured!check your repo config!")
-// 	RepoNotFoundError          = errors.New("No repo match with this id!")
-
-// )
-
 //Errors that does not infect cicd.
 type UncriticalError struct {
 	Uerror error
@@ -85,7 +73,7 @@ type PullOptions struct {
 	Timeout time.Duration
 }
 
-//returns url include username and poaswodf
+// getHttpRepoURL returns url include username and password.
 func getHttpRepoURL(url string, username string, password string) (string, error) {
 	urlParse, err1 := UrlParse.Parse(url)
 	if err1 != nil {
@@ -105,7 +93,7 @@ func getHttpRepoURL(url string, username string, password string) (string, error
 	), nil
 }
 
-//returns oauth format url
+// getOauthRepoURL returns oauth format url.
 func getOauthRepoURL(url string, token string) (string, error) {
 	urlParse, err1 := UrlParse.Parse(url)
 	if err1 != nil {
@@ -167,7 +155,7 @@ func Pull(dst string, opts ...PullOptions) error {
 	return err
 }
 
-//this checks if any attr is empty.
+// CheckRepoConfig checks if any attr is empty.
 func CheckRepoConfig(repoarray []config.Repo) (string, []UncriticalError, error) {
 	var bser []UncriticalError
 	for _, v := range repoarray {
@@ -205,14 +193,14 @@ func CheckRepoConfig(repoarray []config.Repo) (string, []UncriticalError, error)
 				),
 			})
 		}
-		if v.Sshkeyaddr == "" && CheckProtocal(v) == "http" { //http protocol
+		if v.Sshkeyaddr == "" && Checkprotocol(v) == "http" { //http protocol
 			if v.Type != "github" && (v.Username == "" || v.Password == "") {
 				return v.ID, nil, errors.New("Username or password can't be empty!")
 			}
 			if v.Type == "github" && v.Token == "" {
 				return v.ID, nil, errors.New("Github supports personal token to access repo only!")
 			}
-		} else if v.Sshkeyaddr != "" && CheckProtocal(v) == "ssh" { //ssh protocol
+		} else if v.Sshkeyaddr != "" && Checkprotocol(v) == "ssh" { //ssh protocol
 			if exists, _ := file.CheckPathExists(v.Sshkeyaddr); !exists {
 				return v.ID, nil, errors.New("Sshkey not found in " + v.Sshkeyaddr)
 			}
@@ -226,18 +214,26 @@ func CheckRepoConfig(repoarray []config.Repo) (string, []UncriticalError, error)
 	}
 	return "", nil, nil
 }
-func CheckProtocal(v config.Repo) string {
+
+// Checkprotocol checks protocol
+func Checkprotocol(v config.Repo) string {
 	if strings.Contains(v.Repoaddr, "http") {
 		return "http"
 	}
 	return "ssh"
 }
+
+// isPublicRepo checks if the repo is public. Used in checkinfo.
 func isPublicRepo(v config.Repo) bool {
-	return CheckProtocal(v) == "http" && v.Token == "" && v.Username == "" && v.Password == ""
+	return Checkprotocol(v) == "http" && v.Token == "" && v.Username == "" && v.Password == ""
 }
+
+// isPublicRepo checks if the repo is public. Used in cloneoptions.
 func (opts CloneOptions) isPublicRepo() bool {
 	return opts.Protocol == "http" && opts.Token == "" && opts.Username == "" && opts.Password == ""
 }
+
+// isPublicRepo checks if the repo is public. Used in pulloptions.
 func (opts PullOptions) isPublicRepo() bool {
 	return opts.Protocol == "http" && opts.Token == "" && opts.Username == "" && opts.Password == ""
 }
@@ -292,13 +288,15 @@ func clone(url, dst string, opts ...CloneOptions) error {
 	return err
 }
 
-//Returns repo addr locally
+// LocalRepoAddr returns path repo storage in.
 func LocalRepoAddr(repo config.Repo) string {
 	repoarr := strings.Split(repo.Repoaddr, "/")
 	reponame := repoarr[len(repoarr)-1]
 	realpath := path.Join(config.WorkspaceConfig.Path, reponame)
 	return realpath
 }
+
+// GetRepoName returns reponame.
 func GetRepoName(repo config.Repo) string {
 	repoarr := strings.Split(repo.Repoaddr, "/")
 	return repoarr[len(repoarr)-1]
@@ -320,7 +318,7 @@ func CloneOnNotExist(repo config.Repo) error {
 	option := CloneOptions{
 		Branch: repo.Branch,
 	}
-	if CheckProtocal(repo) == "http" {
+	if Checkprotocol(repo) == "http" {
 		option.Protocol = "http"
 		if repo.Token != "" {
 			option.Token = repo.Token
@@ -334,6 +332,8 @@ func CloneOnNotExist(repo config.Repo) error {
 	}
 	return clone(repo.Repoaddr, localAddr, option)
 }
+
+//Searchinfo returns repo with specified id.
 func SearchRepo(ID string) (config.Repo, error) {
 	for _, v := range config.WorkspaceConfig.Repo {
 		if v.ID == ID {
@@ -344,6 +344,8 @@ func SearchRepo(ID string) (config.Repo, error) {
 		ID: "",
 	}, nil
 }
+
+//Runscript run script inside repo dir.
 func RunScript(repo config.Repo) (string, error) {
 	if repo.Buildscript == "" {
 		return "", fmt.Errorf(
@@ -357,15 +359,15 @@ func RunScript(repo config.Repo) (string, error) {
 	return string(result), err
 }
 
-//check if repo dupl in config
+// IsDuplcatedRepo check if repo is dupl in config.
 func IsDuplcatedRepo(repos []config.Repo) (bool, error) {
 	for i := 0; i < len(repos); i++ {
 		for j := i + 1; j < len(repos); j++ {
 			if repos[i].Repoaddr == repos[j].Repoaddr {
-				return true, fmt.Errorf("Duplcate repo address found:", repos[i].Repoaddr)
+				return true, fmt.Errorf("Duplcate repo address found:%v", repos[i].Repoaddr)
 			}
 			if repos[i].ID == repos[j].ID {
-				return true, fmt.Errorf("Duplcate repo id found:", repos[i].ID)
+				return true, fmt.Errorf("Duplcate repo id found:%v", repos[i].ID)
 			}
 		}
 	}

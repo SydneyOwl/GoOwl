@@ -6,7 +6,7 @@ var (
 	yaml = "test"
 )
 
-//Release yaml if no yaml available.
+// Releaseyaml if no yaml is available; Deprecated in v0.1.3+.
 func ReleaseYaml(path string) error {
 	confByte := []byte(yaml)
 	return ioutil.WriteFile(path, confByte, 0666)

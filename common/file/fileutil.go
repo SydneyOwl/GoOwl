@@ -2,7 +2,7 @@ package file
 
 import "os"
 
-//check file is readable;modify addr if addr "=="
+// CheckYamlReadable check if file is readable; modify addr if addr "is "".
 func CheckYamlReadable(addr *string) (bool, error) {
 	if *addr == "" { //Using dafaultaddr
 		path, err := os.Getwd()
@@ -19,7 +19,7 @@ func CheckYamlReadable(addr *string) (bool, error) {
 	return true, nil
 }
 
-//check file is exist
+// CheckPathExists check if file exists.
 func CheckPathExists(path string) (bool, error) {
 	_, err := os.Stat(path)
 	if err == nil {

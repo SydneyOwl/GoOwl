@@ -34,6 +34,7 @@ func init() {
 		StringVarP(&yamlAddr, "run", "c", "", "Run GoOwl using specified yaml config. Use $PWD/config/settings.yaml if not specified.")
 }
 
+// run Run main application.
 func run() {
 	if readable, err := file.CheckYamlReadable(&yamlAddr); !readable {
 		fmt.Println(stdout.Magenta("FATAL:" + err.Error()))
@@ -45,7 +46,7 @@ func run() {
 		return
 	}
 	if err := rawConfig.Unmarshal(config.YamlConfig); err != nil {
-		fmt.Println(stdout.Magenta("Unknown Error occured!"))
+		fmt.Println(stdout.Magenta("Unknown Error occurred!"))
 		return
 	}
 	//Check repo

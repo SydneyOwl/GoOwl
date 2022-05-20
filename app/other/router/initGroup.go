@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// initGroup register hooks to specified route. Should in format "domain/type/id/hook"
 func initgroup() {
 	//hooks only!
 	for _, v := range config.WorkspaceConfig.Repo {

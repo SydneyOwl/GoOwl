@@ -12,6 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// GithubHookReceiver processes hook received in github format and pull the repo/run the script if condition matched.
 func GithubHookReceiver(c *gin.Context) {
 	fmt.Println("Hook received from github...")
 	action := c.GetHeader("X-GitHub-Event")
@@ -53,7 +54,7 @@ func GithubHookReceiver(c *gin.Context) {
 			Remote: targetRepo.Repoaddr,
 			Branch: targetRepo.Branch,
 		}
-		if repo.CheckProtocal(targetRepo) == "ssh" {
+		if repo.Checkprotocol(targetRepo) == "ssh" {
 			po.Protocol = "ssh"
 			po.Sshkey = targetRepo.Sshkeyaddr
 		} else {

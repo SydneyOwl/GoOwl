@@ -23,7 +23,7 @@ var (
 		Short:   "Check whether GoOwl is compatible with this platform",
 		Example: "GoOwl checkenv -c config/settings.yml",
 		Run: func(cmd *cobra.Command, args []string) {
-			run()
+			runEnvCheck()
 		},
 	}
 )
@@ -33,7 +33,7 @@ func init() {
 		StringVarP(&yamlAddr, "checkenv", "c", "", "Check settings with specified yaml")
 }
 
-//This check some basicInfo
+// basicChecking checks environment.
 func basicChecking() {
 	//write platform to global
 	global.OS = envcheck.CheckOS()
@@ -93,56 +93,67 @@ func basicChecking() {
 func appChecking() error {
 	if readable, err := file.CheckYamlReadable(&yamlAddr); !readable {
 		fmt.Println("Checking yaml......", stdout.Red("NO"))
+		// Deleted since no necessary to generate.
 		if os.IsNotExist(err) {
-			fmt.Println(stdout.Yellow("Warning:File not exist.Creating example.yaml for you......"))
-			if isExists, _ := file.CheckPathExists("./config"); isExists {
-				if err := config.ReleaseYaml("./config/example.yaml"); err != nil {
-					fmt.Println(stdout.Red("ERROR:Failed to release ./config/example.yaml"))
-					return errors.New("cannot read file")
-				}
-			}
+			// fmt.Println(stdout.Yellow("Warning:File not exist.Creating example.yaml for you......"))
+			// if isExists, _ := file.CheckPathExists("./config"); isExists {
+			// 	if err := config.ReleaseYaml("./config/example.yaml"); err != nil {
+			// 		fmt.Println(stdout.Red("ERROR:Failed to release ./config/example.yaml"))
+			// 		return errors.New("cannot read file")
+			// 	}
+			// }
+			fmt.Println(stdout.Yellow("Warning:File not exist! Skip..."))
+			return errors.New("Config file not found")
+			// } else {
+			// 	if err := os.Mkdir("./config", 0777); err != nil {
+			// 		fmt.Println(stdout.Red("ERROR:Failed to create ./config"))
+			// 		return errors.New("cannot read file")
+			// 	}
+			// 	if err := config.ReleaseYaml("./config/example.yaml"); err != nil {
+			// 		fmt.Println(stdout.Red("ERROR:Failed to create ./config/example.yaml"))
+			// 		return errors.New("cannot read file")
+			// 	}
+			// }
+			// fmt.Println(stdout.Yellow("Done.Now modify ./config/example.yaml and run again."))
+			// return errors.New("cannot read file")
 		} else {
-			if err := os.Mkdir("./config", 0777); err != nil {
-				fmt.Println(stdout.Red("ERROR:Failed to create ./config"))
-				return errors.New("cannot read file")
-			}
-			if err := config.ReleaseYaml("./config/example.yaml"); err != nil {
-				fmt.Println(stdout.Red("ERROR:Failed to create ./config/example.yaml"))
-				return errors.New("cannot read file")
-			}
+			fmt.Println(stdout.Yellow("Warning:File not readable! Skip..."))
+			return errors.New("Config file not readable")
 		}
-		fmt.Println(stdout.Yellow("Done.Now modify ./config/example.yaml and run again."))
-		return errors.New("cannot read file")
-	}
-	rawConfig, err := config.LoadConfigFromYaml(yamlAddr) //returns raw viper obj
-	if err := config.CheckViperErr(err); err != nil {
-		fmt.Println("Checking yaml......", stdout.Red("NO"))
-		fmt.Println(stdout.Magenta("FATAL:" + stdout.Red(err.Error())))
-		return errors.New("config error")
-	}
-	fmt.Println("Checking Yaml......", stdout.Green("ok"))
-	port := rawConfig.GetInt("settings.application.port")
-	if envcheck.CheckConn("localhost:" + strconv.Itoa(port)) {
-		fmt.Println("Checking Port "+strconv.Itoa(port)+".....", stdout.Red("NO"))
-		fmt.Println(stdout.Red("Fatal:Port " + strconv.Itoa(port) + " is being occupied!"))
-		return errors.New("port being occupied")
 	} else {
-		fmt.Println("Checking Port "+strconv.Itoa(port)+".....", stdout.Green("OK"))
+		rawConfig, err := config.LoadConfigFromYaml(yamlAddr) //returns raw viper obj
+		if err := config.CheckViperErr(err); err != nil {
+			fmt.Println("Checking yaml......", stdout.Red("NO"))
+			fmt.Println(stdout.Magenta("FATAL:" + stdout.Red(err.Error())))
+			return errors.New("config error")
+		}
+		fmt.Println("Checking Yaml......", stdout.Green("ok"))
+		port := rawConfig.GetInt("settings.application.port")
+		if envcheck.CheckConn("localhost:" + strconv.Itoa(port)) {
+			fmt.Println("Checking Port "+strconv.Itoa(port)+".....", stdout.Red("NO"))
+			fmt.Println(stdout.Red("Fatal:Port " + strconv.Itoa(port) + " is being occupied!"))
+			return errors.New("port being occupied")
+		} else {
+			fmt.Println("Checking Port "+strconv.Itoa(port)+".....", stdout.Green("OK"))
+		}
+		workspaceExists, _ := file.CheckPathExists(rawConfig.GetString("settings.workspace.path"))
+		if workspaceExists {
+			fmt.Println("Checking workspace......", stdout.Green("OK"))
+		} else {
+			fmt.Println("Checking workspace......", stdout.Red("NO"))
+			fmt.Println(stdout.Yellow("Warning:Workspace does not exist!Create it manually first!"))
+			return errors.New("workspace not exist")
+		}
+		return nil
 	}
-	workspaceExists, _ := file.CheckPathExists(rawConfig.GetString("settings.workspace.path"))
-	if workspaceExists {
-		fmt.Println("Checking workspace......", stdout.Green("OK"))
-	} else {
-		fmt.Println("Checking workspace......", stdout.Red("NO"))
-		fmt.Println(stdout.Yellow("Warning:Workspace does not exist!Create it manually first!"))
-		return errors.New("workspace not exist")
-	}
-	return nil
 }
-func run() {
+
+// runEnvCheck runs checkenv process.
+func runEnvCheck() {
 	basicChecking()
 	fmt.Println("-------------------------------------------")
-	if err := appChecking(); err != nil {
+	if err := appChecking(); err != nil { //All fatal errors.
+		fmt.Println(stdout.Cyan("Fatal error occured. Fix it before run checkenv."))
 		return
 	}
 	if warningCount != 0 {

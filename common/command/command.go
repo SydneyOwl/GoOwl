@@ -40,6 +40,8 @@ func (c *Command) String() string {
 	}
 	return fmt.Sprintf("%s %s", c.name, strings.Join(c.args, " "))
 }
+
+// CICDCommand creates and returns a new Command with given arguments for "bash".
 func CICDCommand(args ...string) *Command {
 	return &Command{
 		name: "bash",

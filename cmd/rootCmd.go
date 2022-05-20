@@ -35,12 +35,13 @@ func init() {
 	rootCmd.AddCommand(run.StartCmd)
 }
 
-//display if input error
+// tip displays when input command cannot be identified.
 func tip() {
 	fmt.Printf("GoOwl Ver:%s (%s).\n", global.Version, global.Status)
 	fmt.Println("Use" + stdout.Green(" GoOwl -h ") + "for help.")
 }
 
+//Execute is the entrance of Gowl.
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(-1)

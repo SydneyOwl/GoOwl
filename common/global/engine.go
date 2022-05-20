@@ -11,21 +11,23 @@ var (
 	engine *gin.Engine //global engine
 )
 
-//explanation for each route
+// routerDetail is the explanation for each route
 type routerDetail struct {
 	Route       string
 	Explanation string
 }
 
-//Set global used engine
+// SetEngine set global used engine
 func SetEngine(eng *gin.Engine) {
 	engine = eng
 }
 
-//get global used engine
+// GetEngine get global used engine
 func GetEngine() *gin.Engine {
 	return engine
 }
+
+// GetAllRouters get routers registered.
 func GetAllRouters() []routerDetail {
 	//show all routes
 	routers := engine.Routes()

@@ -6,7 +6,7 @@ import (
 	"github.com/fatih/color"
 )
 
-//Return string in red
+// Red return string in red
 func Red(msg string) string {
 	if global.OS == "linux" {
 		return color.New(color.FgRed).SprintFunc()(msg)
@@ -14,7 +14,7 @@ func Red(msg string) string {
 	return msg
 }
 
-//Return string in green
+// Green return string in green
 func Green(msg string) string {
 	if global.OS == "linux" {
 		return color.New(color.FgGreen).SprintFunc()(msg)
@@ -22,7 +22,7 @@ func Green(msg string) string {
 	return msg
 }
 
-//Return string in yellow
+// Yellow return string in yellow
 func Yellow(msg string) string {
 	if global.OS == "linux" {
 		return color.New(color.FgYellow).SprintFunc()(msg)
@@ -30,7 +30,7 @@ func Yellow(msg string) string {
 	return msg
 }
 
-//Return string in blue
+// Blue return string in blue
 func Blue(msg string) string {
 	if global.OS == "linux" {
 		return color.New(color.FgBlue).SprintFunc()(msg)
@@ -38,7 +38,7 @@ func Blue(msg string) string {
 	return msg
 }
 
-//Return string in Magenta
+// Magenta return string in Magenta
 func Magenta(msg string) string {
 	if global.OS == "linux" {
 		return color.New(color.FgHiMagenta).SprintFunc()(msg)
@@ -46,7 +46,7 @@ func Magenta(msg string) string {
 	return msg
 }
 
-//Return string in cyan
+// Cyan return string in cyan
 func Cyan(msg string) string {
 	if global.OS == "linux" {
 		return color.New(color.FgCyan).SprintFunc()(msg)
@@ -54,7 +54,7 @@ func Cyan(msg string) string {
 	return msg
 }
 
-//Return string in white
+// White return string in white
 func White(msg string) string {
 	if global.OS == "linux" {
 		return color.New(color.FgWhite).SprintFunc()(msg)

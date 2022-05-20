@@ -12,7 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-//Common resp of hooks
+// GogsHookReceiver processes hook received in gogs format and pull the repo/run the script if condition matched.
 func GogsHookReceiver(c *gin.Context) {
 	fmt.Println("Hook received from gogs...")
 	action := c.GetHeader("X-Gogs-Event")
@@ -47,7 +47,7 @@ func GogsHookReceiver(c *gin.Context) {
 			Remote: targetRepo.Repoaddr,
 			Branch: targetRepo.Branch,
 		}
-		if repo.CheckProtocal(targetRepo) == "ssh" {
+		if repo.Checkprotocol(targetRepo) == "ssh" {
 			po.Protocol = "ssh"
 			po.Sshkey = targetRepo.Sshkeyaddr
 		} else {
