@@ -16,9 +16,10 @@ import (
 )
 
 var (
-	yamlAddr   string
-	AppRouters = make([]func(), 0) // Storages routers
-	StartCmd   = &cobra.Command{
+	yamlAddr      string
+	AppRouters    = make([]func(), 0) // Storages routers
+	skipRepoCheck bool
+	StartCmd      = &cobra.Command{
 		Use:     "run",
 		Short:   "Run GoOwl as backend",
 		Example: "GoOwl run -c config/settings.yml",
@@ -32,6 +33,7 @@ var (
 func init() {
 	StartCmd.Flags().
 		StringVarP(&yamlAddr, "run", "c", "", "Run GoOwl using specified yaml config. Use $PWD/config/settings.yaml if not specified.")
+	StartCmd.Flags().BoolVar(&skipRepoCheck, "skip-repocheck", false, "Skip check of repo config, including address and authorization.")
 }
 
 // run Run main application.
@@ -54,26 +56,38 @@ func run() {
 		fmt.Println(err.Error())
 		return
 	}
-	ID, uncritialerror, err := repo.CheckRepoConfig(config.WorkspaceConfig.Repo)
-	if err != nil {
-		fmt.Println(stdout.Magenta("Repo " + ID + " has an invaild config:" + err.Error()))
-		return
-	}
-	if len(uncritialerror) > 0 {
-		for _, v := range uncritialerror {
-			fmt.Println(
-				stdout.Magenta(
-					"repo " + v.ID + " has an invaild config:" + v.Uerror.Error() + ",check if it is correct.",
-				),
-			)
+	if !skipRepoCheck {
+		ID, uncritialerror, err := repo.CheckRepoConfig(config.WorkspaceConfig.Repo)
+		if err != nil {
+			fmt.Println(stdout.Magenta("Repo " + ID + " has an invaild config:" + err.Error()))
+			return
 		}
+		if len(uncritialerror) > 0 {
+			for _, v := range uncritialerror {
+				fmt.Println(
+					stdout.Magenta(
+						"repo " + v.ID + " has an invaild config:" + v.Uerror.Error() + ",check if it is correct.",
+					),
+				)
+			}
+		}
+	}else{
+		fmt.Println(stdout.Magenta("Check skipped."))
 	}
+	var iserr bool = false
 	//Clone repo unexists
-	fmt.Println(stdout.Yellow("Manually answer yes if required."))
 	for _, v := range config.WorkspaceConfig.Repo {
+		if repo.Checkprotocol(v) == "ssh" {
+			fmt.Println(stdout.Yellow("Manually answer yes if required."))
+		}
 		if err := repo.CloneOnNotExist(v); err != nil {
+			global.RejectedRepo = append(global.RejectedRepo, v.ID)
+			iserr = true
 			fmt.Println(stdout.Cyan("Error:" + err.Error()))
 		}
+	}
+	if iserr {
+		fmt.Println(stdout.Cyan("Err occured. Check and fix it if necessary. Those routes of repos that failed to clone will not be registered."))
 	}
 	//set to release mode
 	if config.ApplicationConfig.Mode == "release" {
@@ -87,7 +101,20 @@ func run() {
 	//Welcome Page
 	routers := global.GetAllRouters()
 	fmt.Println("------------------------------------------------------")
-	fmt.Println("Welcome to GoOwl! Here're all routes you've registered:")
+	if len(routers) != 0 {
+		fmt.Println("Here're all routes you've registered:")
+		//rej
+		for _, v := range global.RejectedRepo {
+			fmt.Printf("[rejected] Repo %v(%v)\n", v, "failed to clone")
+		}
+	} else {
+		fmt.Println("No route is registered. GoOwl suspend")
+		//rej
+		for _, v := range global.RejectedRepo {
+			fmt.Printf("[rejected] Repo %v(%v)\n", v, "failed to clone")
+		}
+		return
+	}
 	for _, v := range routers {
 		fmt.Println(v.Route + "---------------->" + v.Explanation)
 	}

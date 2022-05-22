@@ -73,6 +73,10 @@ type PullOptions struct {
 	Timeout time.Duration
 }
 
+var (
+	token_supported []string = []string{"gogs", "github"}
+)
+
 // getHttpRepoURL returns url include username and password.
 func getHttpRepoURL(url string, username string, password string) (string, error) {
 	urlParse, err1 := UrlParse.Parse(url)
@@ -93,7 +97,21 @@ func getHttpRepoURL(url string, username string, password string) (string, error
 	), nil
 }
 
-// getOauthRepoURL returns oauth format url.
+//getTokenRepoURL returns token format url.
+func getTokenRepoURL(url string, token string) (string, error) {
+	urlParse, err1 := UrlParse.Parse(url)
+	if err1 != nil {
+		return "", err1
+	}
+	return fmt.Sprintf(
+		"%s://%s@%s",
+		urlParse.Scheme,
+		token,
+		urlParse.Host+urlParse.Path,
+	), nil
+}
+
+// getOauthRepoURL returns oauth format url.(github)
 func getOauthRepoURL(url string, token string) (string, error) {
 	urlParse, err1 := UrlParse.Parse(url)
 	if err1 != nil {
@@ -164,48 +182,58 @@ func CheckRepoConfig(repoarray []config.Repo) (string, []UncriticalError, error)
 			// UncriticalError
 			bser = append(bser, UncriticalError{
 				ID:     v.ID,
-				Uerror: errors.New("BuildScript is empty!"),
+				Uerror: errors.New("buildScript is empty"),
 			})
 		}
 		if v.Repoaddr == "" {
-			return v.ID, nil, errors.New("Repoaddr not set!")
+			return v.ID, nil, errors.New("repoaddr not set")
 		}
 		if v.Branch == "" {
 			bser = append(bser, UncriticalError{
 				ID:     v.ID,
-				Uerror: errors.New("Branch not set. Use master in default."),
+				Uerror: errors.New("branch not set. Use master in default"),
 			})
 		}
 		if v.Type == "" {
-			return v.ID, nil, errors.New("Hooktype not specified.")
+			return v.ID, nil, errors.New("hooktype not specified")
 		}
 		if v.Trigger == nil {
-			v.Trigger = []string{"push"}
+			v.Trigger = []string{"push"} //Set push
 		}
 		if isPublicRepo(v) {
+			bser = append(bser, UncriticalError{
+				ID:     v.ID,
+				Uerror: errors.New("repo delare itself as public since neither username/password nor token is specified"),
+			})
 			continue //Ignore since it is an public repo
 		}
-		if v.Token != "" && (v.Username != "" || v.Password != "") {
+		if v.Sshkeyaddr == "" && Checkprotocol(v) == "http" { //http protocol
+			if v.Type == "github" && v.Token == "" {
+				return v.ID, nil, errors.New("github supports personal token to access repo only")
+			}
+			if (v.Username == "" || v.Password == "") && v.Token == "" {
+				return v.ID, nil, errors.New("no valid authorization method found in config")
+			}
+			if v.Token != "" && !config.CheckInSlice(token_supported, v.Type) {
+				return v.ID, nil, fmt.Errorf("type %s does not support token authorization", v.Type)
+			}
+		} else if Checkprotocol(v) == "ssh" && v.Sshkeyaddr != "" { //ssh protocol
+			if exists, _ := file.CheckPathExists(v.Sshkeyaddr); !exists {
+				return v.ID, nil, errors.New("sshkey not found in " + v.Sshkeyaddr)
+			}
+		} else {
+			bser = append(bser, UncriticalError{
+				ID:     v.ID,
+				Uerror: errors.New("mix use of http and ssh. GoOwl use ssh by default"),
+			})
+		}
+		if v.Token != "" && (v.Username != "" || v.Password != "") { //exists at the same time
 			bser = append(bser, UncriticalError{
 				ID: v.ID,
 				Uerror: errors.New(
-					"Both username and token are specified. GoOwl uses token in default.",
+					"both username and token are specified. GoOwl uses token in default",
 				),
 			})
-		}
-		if v.Sshkeyaddr == "" && Checkprotocol(v) == "http" { //http protocol
-			if v.Type != "github" && (v.Username == "" || v.Password == "") {
-				return v.ID, nil, errors.New("Username or password can't be empty!")
-			}
-			if v.Type == "github" && v.Token == "" {
-				return v.ID, nil, errors.New("Github supports personal token to access repo only!")
-			}
-		} else if v.Sshkeyaddr != "" && Checkprotocol(v) == "ssh" { //ssh protocol
-			if exists, _ := file.CheckPathExists(v.Sshkeyaddr); !exists {
-				return v.ID, nil, errors.New("Sshkey not found in " + v.Sshkeyaddr)
-			}
-		} else {
-			return v.ID, nil, errors.New("Mix use of ssh and http!")
 		}
 	}
 	//return only if there're no more critial error gened.
@@ -252,14 +280,21 @@ func clone(url, dst string, opts ...CloneOptions) error {
 	} else { //httpprot
 		cmd = command.NewCommand("clone")
 		if !opt.isPublicRepo() {
-			//github supports oath only,
+			// Ignore empty since checked.
 			if opt.Token != "" {
-				target, err := getOauthRepoURL(url, opt.Token)
-				// fmt.Println("atr:",target)
-				if err != nil {
-					return err
+				if opt.Type == "github" {
+					target, err := getOauthRepoURL(url, opt.Token)
+					if err != nil {
+						return err
+					}
+					targetURL = target
+				} else {
+					target, err := getTokenRepoURL(url, opt.Token)
+					if err != nil {
+						return err
+					}
+					targetURL = target
 				}
-				targetURL = target
 			} else {
 				target, err := getHttpRepoURL(url, opt.Username, opt.Password)
 				if err != nil {
@@ -364,10 +399,10 @@ func IsDuplcatedRepo(repos []config.Repo) (bool, error) {
 	for i := 0; i < len(repos); i++ {
 		for j := i + 1; j < len(repos); j++ {
 			if repos[i].Repoaddr == repos[j].Repoaddr {
-				return true, fmt.Errorf("Duplcate repo address found:%v", repos[i].Repoaddr)
+				return true, fmt.Errorf("duplcate repo address found:%v", repos[i].Repoaddr)
 			}
 			if repos[i].ID == repos[j].ID {
-				return true, fmt.Errorf("Duplcate repo id found:%v", repos[i].ID)
+				return true, fmt.Errorf("duplcate repo id found:%v", repos[i].ID)
 			}
 		}
 	}

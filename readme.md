@@ -50,7 +50,7 @@ settings:
 + `id` could be anything that could identify repos. Should be unique.
 + `workspace`.`path` defines the location repos downloaded by GoOwl storage in.
 + `buildscript` refers to the script you want to execute after specified repo is pulled. (this script will run in the directory of the repo so you don't need to use absolute addr.)
-+ When using ssh, only `sshkeyaddr` and repoaddr in ssh form is needed. `username` and `password` is needed only when you need to access the repo via http(s). However, if the repo is on github, you should use token instead of `username` and `password` since github does not supports username and password authorization via http(s).
++ When using ssh, only `sshkeyaddr` and repoaddr in ssh form is needed. `username` and `password` is needed only when you need to access the repo via http(s). **However, if the repo is on github, you should use token instead of `username` and `password` since github does not supports username and password authorization via http(s).**
 + `branch` refers to the brance you want to clone/pull.
 + `token` should be used in ssh and only supports github now.
 
@@ -58,13 +58,22 @@ Ignore username,password or token if it is an public repo accessed via http(s) w
 
 *GoOwl supports webhook from gogs and github. More hooktypes will be supported in the future.*
 
+>**Authorization methods supported:**
+>
+>Gogs: ssh(privatekey)/http(username&password)/http(token)
+>
+>Github: ssh(privatekey)/http(token)
+
+>**Authorization order by dafault(both exists)**
+>
+>ssh->oauth->http
 GoOwl reads config from `./config/settings.yaml` by default. You can also use `-c` to specify the yaml file if you don't want to put it in default location.
 
 Run `./GoOwl --help` to get more info.
 
 Run `./GoOwl checkenv` to check if everything works well.  
 
-To start the hook listener and cicd server, run `./GoOwl run`. GoOwl will automatically clone repo at the first time. You need to input "yes" if you uses ssh to clone them.
+To start the hook listener and cicd server, run `./GoOwl run`. GoOwl will automatically clone repo at the first time. You need to input "yes" if you uses ssh to clone them. If you'd like to ignore repo checking(whether config is properly filled), use `--skip-repocheck`. 
 
 GoOwl displays hook path on start(example):
 ```
@@ -72,9 +81,10 @@ GoOwl displays hook path on start(example):
 /gogs/2/hook---------------->Hook for repo 2,type:gogs
 /github/3/hook---------------->Hook for repo 3,type:github
 ```
-you may use `https://domain.com/gogs/1/hook` as the hook address of repo 1 for example. When GoOwl received webhook, it will start executing script automatically and print result out.
+you may use `https://domain.com/gogs/1/hook` as the hook address of repo 1 for example. When GoOwl received webhook, it will start executing script automatically and print result out.However, if repo failed to clone on start, the route of the repo won't be registered, which means the hook of the repo is unavailable. 
+
 
 ## More...
 `GoOwl` may be buggy currently. Issues are welcome.
 
-**Some of the code (common/command、cmd/run、app/other) comes from gogs and go-admin under mit license. Thanks!**
+**Some of the code (common/command、cmd/run、app/other) comes from gogs and go-admin under MIT license. Thanks!**

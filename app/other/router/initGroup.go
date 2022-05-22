@@ -5,6 +5,7 @@ import (
 
 	"github.com/sydneyowl/GoOwl/app/other/apis"
 	"github.com/sydneyowl/GoOwl/common/config"
+	"github.com/sydneyowl/GoOwl/common/global"
 
 	"github.com/gin-gonic/gin"
 )
@@ -13,6 +14,10 @@ import (
 func initgroup() {
 	//hooks only!
 	for _, v := range config.WorkspaceConfig.Repo {
+		//reject repo
+		if config.CheckInSlice(global.RejectedRepo,v.ID){
+			continue
+		}
 		route := fmt.Sprintf("/%s/hook", v.ID)
 		//GogsRegister
 		if v.Type == "gogs" {
