@@ -63,7 +63,7 @@ Ignore username,password or token if it is an public repo accessed via http(s) w
 >Gogs: ssh(privatekey)/http(username&password)/http(token)
 >
 >Github: ssh(privatekey)/http(token)
-
+>
 >**Authorization order by dafault(both exists)**
 >
 >ssh->oauth->http
@@ -90,4 +90,4 @@ full example:
 ## More...
 `GoOwl` may be buggy currently. Issues are welcome.
 
-**Some of the code (common/command、cmd/run、app/other) comes from gogs and go-admin under MIT license. Thanks!**
+**Some part (/config/command and /app/other) comes from [gogs](https://github.com/gogs/git-module) and [go-admin](https://github.com/go-admin-team/go-admin) under MIT license. Thanks!**
