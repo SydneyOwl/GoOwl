@@ -139,12 +139,19 @@ func Pull(dst string, opts ...PullOptions) error {
 		cmd = command.NewCommand("pull")
 		if !opt.isPublicRepo() {
 			if targetURL != "" { //git pull ....
-				if opt.Token != "" {
+				if opt.Type == "github" {
 					target, err := getOauthRepoURL(targetURL, opt.Token)
 					if err != nil {
 						return err
 					}
 					targetURL = target
+				} else {
+					target, err := getTokenRepoURL(targetURL, opt.Token)
+					if err != nil {
+						return err
+					}
+					targetURL = target
+				}
 				} else {
 					target, err := getHttpRepoURL(targetURL, opt.Username, opt.Password)
 					if err != nil {
@@ -156,7 +163,6 @@ func Pull(dst string, opts ...PullOptions) error {
 				// targetURL = fmt.Sprintf("%s://%s:%s@%s", urlParse.Scheme, username, opt.Password, urlParse.Host+urlParse.Path)
 			}
 		}
-	}
 	if opt.Rebase {
 		cmd.AddArgs("--rebase")
 	}

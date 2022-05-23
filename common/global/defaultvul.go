@@ -5,6 +5,8 @@ const (
 	Status  = "Dev"
 )
 
+
 var (
+	// Default OS
 	OS = "linux"
 )

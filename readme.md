@@ -54,7 +54,7 @@ settings:
 + `branch` refers to the brance you want to clone/pull.
 + `token` should be used in ssh and only supports github now.
 
-Ignore username,password or token if it is an public repo accessed via http(s) with correct settings..
+Ignore username,password or token if it is an public repo accessed via http(s) with correct settings.
 
 *GoOwl supports webhook from gogs and github. More hooktypes will be supported in the future.*
 
@@ -67,6 +67,7 @@ Ignore username,password or token if it is an public repo accessed via http(s) w
 >**Authorization order by dafault(both exists)**
 >
 >ssh->oauth->http
+
 GoOwl reads config from `./config/settings.yaml` by default. You can also use `-c` to specify the yaml file if you don't want to put it in default location.
 
 Run `./GoOwl --help` to get more info.
@@ -81,8 +82,10 @@ GoOwl displays hook path on start(example):
 /gogs/2/hook---------------->Hook for repo 2,type:gogs
 /github/3/hook---------------->Hook for repo 3,type:github
 ```
-you may use `https://domain.com/gogs/1/hook` as the hook address of repo 1 for example. When GoOwl received webhook, it will start executing script automatically and print result out.However, if repo failed to clone on start, the route of the repo won't be registered, which means the hook of the repo is unavailable. 
+you may use `https://domain:port/gogs/1/hook` as the hook address of repo 1 for example. When GoOwl received webhook, it will start executing script automatically and print result out. However, if repo failed to clone on start, the route of the repo won't be registered, which means the hook of the repo is unavailable. 
 
+full example:
+![pic_1](./md_pic/1.png)![pic_2](./md_pic/2.png)
 
 ## More...
 `GoOwl` may be buggy currently. Issues are welcome.
