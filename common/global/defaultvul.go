@@ -1,8 +1,8 @@
 package global
 
 const (
-	Version = "0.1.4"
-	Status  = "Dev"
+	Version = "0.2.0"
+	Status  = "release"
 )
 
 

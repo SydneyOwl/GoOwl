@@ -7,7 +7,7 @@ GoOwl is a basic CI/CD tool. By filling a simple yaml file, you can:
 + execute script when repos are pulled
 
 ## How to use GoOwl
- ***GoOwl is unstable currently. Do not use it in an production env and should try it in docker or virtual machine instead. Windows and Mac releases are not reliable since they're not being tested.***
+ ***~GoOwl is unstable currently. Do not use it in an production env and should try it in docker or virtual machine instead.~ Windows and Mac releases are not reliable since they're not being tested.***
 
 Firstly you need to fill a yaml file, which is located at config/standard.yaml and could be found in this repo. It should look like this if filled correctly:
 
