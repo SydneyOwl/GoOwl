@@ -7,6 +7,8 @@ const (
 
 
 var (
+	// Log output
+	LoggingMethod = 1
 	// Default OS
 	OS = "linux"
 )

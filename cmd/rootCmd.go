@@ -4,8 +4,6 @@ import (
 	"github.com/sydneyowl/GoOwl/cmd/checkenv"
 	"github.com/sydneyowl/GoOwl/cmd/run"
 	"github.com/sydneyowl/GoOwl/common/global"
-	"github.com/sydneyowl/GoOwl/common/stdout"
-
 	"errors"
 	"fmt"
 	"os"
@@ -21,7 +19,7 @@ var rootCmd = &cobra.Command{
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 1 {
 			tip()
-			return errors.New(stdout.Red("At least one arg is required!"))
+			return errors.New("At least one arg is required!")
 		}
 		return nil
 	},
@@ -38,7 +36,7 @@ func init() {
 // tip displays when input command cannot be identified.
 func tip() {
 	fmt.Printf("GoOwl Ver:%s (%s).\n", global.Version, global.Status)
-	fmt.Println("Use" + stdout.Green(" GoOwl -h ") + "for help.")
+	fmt.Println("Use GoOwl -h for help.")
 }
 
 //Execute is the entrance of Gowl.

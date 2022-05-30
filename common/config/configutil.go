@@ -4,6 +4,8 @@ import (
 	"errors"
 
 	"github.com/spf13/viper"
+	"github.com/sydneyowl/GoOwl/common/file"
+	"github.com/sydneyowl/GoOwl/common/logger"
 )
 
 var (
@@ -41,4 +43,19 @@ func CheckInSlice(compareTo []string, from string) bool {
 		}
 	}
 	return false
+}
+func InitConfig(yamlAddr *string){
+	if readable, err := file.CheckYamlReadable(yamlAddr); !readable {
+		logger.Fatal(err.Error(),"GoOwl-MainLog")
+		return
+	}
+	rawConfig, err := LoadConfigFromYaml(*yamlAddr) //returns raw viper obj
+	if err := CheckViperErr(err); err != nil {
+		logger.Error(err.Error(),"GoOwl-MainLog")
+		return
+	}
+	if err := rawConfig.Unmarshal(YamlConfig); err != nil {
+		logger.Warning("Unknown Error occurred!","GoOwl-MainLog")
+		return
+	}
 }

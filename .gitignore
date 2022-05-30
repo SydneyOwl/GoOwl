@@ -2,3 +2,4 @@ main
 GoOwl
 /config/*
 !/config/standard.yaml
+/log

@@ -10,7 +10,7 @@ import (
 	"github.com/sydneyowl/GoOwl/common/envcheck"
 	"github.com/sydneyowl/GoOwl/common/file"
 	"github.com/sydneyowl/GoOwl/common/global"
-	"github.com/sydneyowl/GoOwl/common/stdout"
+	"github.com/sydneyowl/GoOwl/common/logger"
 
 	"github.com/spf13/cobra"
 )
@@ -43,56 +43,54 @@ func basicChecking() {
 	detail := envcheck.CheckPlatform()
 	indocker := envcheck.CheckDocker()
 	if indocker == 1 {
-		dockerStat += stdout.Green("True")
+		dockerStat += "True"
 		fmt.Println("Checking platform......", detail+dockerStat)
 	} else if indocker == 0 {
 		warningCount++
-		dockerStat += stdout.Red("False")
+		dockerStat += "False"
 		fmt.Println("Checking platform......", detail+dockerStat)
-		fmt.Println(stdout.Yellow("Warning:GoOwl is not running in docker. Do not run it in host directly!"))
+		fmt.Println("Warning:GoOwl is not running in docker. Do not run it in host directly!")
 	} else {
-		dockerStat += stdout.Yellow("UNKNOWN")
+		dockerStat += "UNKNOWN"
 		fmt.Println("Checking platform......", detail+dockerStat)
 	}
 	if global.OS != "linux" {
 		warningCount++
-		fmt.Println(
-			stdout.Yellow(
-				"Warning:GoOwl may crash in " + global.OS + " since it is still unstable.",
-			),
-		)
+			logger.Warning(
+				"Warning:GoOwl may crash in " + global.OS + " since it is still unstable.","GoOwl-MainLog",
+			)
 	} else {
 		rootPermission := envcheck.CheckIsRoot()
 		if rootPermission {
-			fmt.Println("Checking Permission......", stdout.Green("OK"))
+			fmt.Println("Checking Permission......", "OK")
 		} else {
 			warningCount++
-			fmt.Println("Checking Permission......", stdout.Red("NO"))
-			fmt.Println(stdout.Yellow("Warning:Run GoOwl without root may crash!"))
+			fmt.Println("Checking Permission......", "NO")
+			logger.Warning("Run GoOwl without root may crash!","GoOwl-MainLog")
 		}
 	}
 	diskSpace := envcheck.CheckDiskSpace()
 	if diskSpace {
-		fmt.Println("Checking DiskSpace......", stdout.Green("OK"))
+		fmt.Println("Checking DiskSpace......", "OK")
 	} else {
 		warningCount++
-		fmt.Println("Checking DiskSpace......", stdout.Red("NO"))
-		fmt.Println(stdout.Yellow("Warning:More then 2G Disk space is suggested for GoOwl!"))
+		fmt.Println("Checking DiskSpace......", "NO")
+		logger.Warning("More then 2G Disk space is suggested for GoOwl!","GoOwl-MainLog")
 	}
 	memorySpace := envcheck.CheckMemory()
 	if memorySpace {
-		fmt.Println("Checking Memory......", stdout.Green("OK"))
+		fmt.Println("Checking Memory......", "OK")
 	} else {
 		warningCount++
-		fmt.Println("Checking Memory......", stdout.Red("NO"))
-		fmt.Println(stdout.Yellow("Warning:More then 1G Memory is suggested for GoOwl!"))
+		fmt.Println("Checking Memory......", "NO")
+		logger.Warning("Warning:More then 1G Memory is suggested for GoOwl!","GoOwl-MainLog")
 	}
 }
 
 //Check yaml config here；Create example if not exists;check host env only!
 func appChecking() error {
 	if readable, err := file.CheckYamlReadable(&yamlAddr); !readable {
-		fmt.Println("Checking yaml......", stdout.Red("NO"))
+		fmt.Println("Checking yaml......", "NO")
 		// Deleted since no necessary to generate.
 		if os.IsNotExist(err) {
 			// fmt.Println(stdout.Yellow("Warning:File not exist.Creating example.yaml for you......"))
@@ -102,7 +100,7 @@ func appChecking() error {
 			// 		return errors.New("cannot read file")
 			// 	}
 			// }
-			fmt.Println(stdout.Yellow("Warning:File not exist! Skip..."))
+			logger.Warning("File not exist! Skip...","GoOwl-MainLog")
 			return errors.New("Config file not found")
 			// } else {
 			// 	if err := os.Mkdir("./config", 0777); err != nil {
@@ -117,31 +115,31 @@ func appChecking() error {
 			// fmt.Println(stdout.Yellow("Done.Now modify ./config/example.yaml and run again."))
 			// return errors.New("cannot read file")
 		} else {
-			fmt.Println(stdout.Yellow("Warning:File not readable! Skip..."))
+			logger.Warning("Warning:File not readable! Skip...","GoOwl-MainLog")
 			return errors.New("Config file not readable")
 		}
 	} else {
 		rawConfig, err := config.LoadConfigFromYaml(yamlAddr) //returns raw viper obj
 		if err := config.CheckViperErr(err); err != nil {
-			fmt.Println("Checking yaml......", stdout.Red("NO"))
-			fmt.Println(stdout.Magenta("FATAL:" + stdout.Red(err.Error())))
+			fmt.Println("Checking yaml......", "NO")
+			logger.Fatal(err.Error(),"GoOwl-MainLog")
 			return errors.New("config error")
 		}
-		fmt.Println("Checking Yaml......", stdout.Green("ok"))
+		fmt.Println("Checking Yaml......", "ok")
 		port := rawConfig.GetInt("settings.application.port")
 		if envcheck.CheckConn("localhost:" + strconv.Itoa(port)) {
-			fmt.Println("Checking Port "+strconv.Itoa(port)+".....", stdout.Red("NO"))
-			fmt.Println(stdout.Red("Fatal:Port " + strconv.Itoa(port) + " is being occupied!"))
+			fmt.Println("Checking Port "+strconv.Itoa(port)+".....", "NO")
+			logger.Fatal("Port " + strconv.Itoa(port) + " is being occupied!","GoOwl-MainLog")
 			return errors.New("port being occupied")
 		} else {
-			fmt.Println("Checking Port "+strconv.Itoa(port)+".....", stdout.Green("OK"))
+			fmt.Println("Checking Port "+strconv.Itoa(port)+".....", "OK")
 		}
 		workspaceExists, _ := file.CheckPathExists(rawConfig.GetString("settings.workspace.path"))
 		if workspaceExists {
-			fmt.Println("Checking workspace......", stdout.Green("OK"))
+			fmt.Println("Checking workspace......", "OK")
 		} else {
-			fmt.Println("Checking workspace......", stdout.Red("NO"))
-			fmt.Println(stdout.Yellow("Warning:Workspace does not exist!Create it manually first!"))
+			fmt.Println("Checking workspace......", "NO")
+			logger.Warning("Workspace does not exist!Create it manually first!","GoOwl-MainLog")
 			return errors.New("workspace not exist")
 		}
 		return nil
@@ -153,18 +151,18 @@ func runEnvCheck() {
 	basicChecking()
 	fmt.Println("-------------------------------------------")
 	if err := appChecking(); err != nil { //All fatal errors.
-		fmt.Println(stdout.Cyan("Fatal error occured. Fix it before run checkenv."))
+		logger.Notice("Fatal error occured. Fix it before run checkenv.","GoOwl-MainLog")
 		return
 	}
 	if warningCount != 0 {
 		warnOutput := fmt.Sprintf(
 			"Checkenv %v with %v %v. Fix them if you are in production env.",
-			stdout.Green("PASSED"),
+			"PASSED",
 			warningCount,
-			stdout.Yellow("warning"),
+			"warning",
 		)
-		fmt.Println(warnOutput)
+		logger.Warning(warnOutput,"GoOwl-MainLog")
 	} else {
-		fmt.Println("Checkenv", stdout.Green("PASSED")+". You are ready to GoOwl.")
+		logger.Warning("Checkenv PASSED"+". You are ready to GoOwl.","GoOwl-MainLog")
 	}
 }

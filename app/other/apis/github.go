@@ -6,8 +6,8 @@ import (
 
 	"github.com/sydneyowl/GoOwl/common/config"
 	"github.com/sydneyowl/GoOwl/common/hook"
+	"github.com/sydneyowl/GoOwl/common/logger"
 	"github.com/sydneyowl/GoOwl/common/repo"
-	"github.com/sydneyowl/GoOwl/common/stdout"
 
 	"github.com/gin-gonic/gin"
 )
@@ -24,7 +24,7 @@ func GithubHookReceiver(c *gin.Context) {
 		c.JSON(500, gin.H{
 			"Status": "InternalServerError", //InternalServerErrorErr
 		})
-		fmt.Println(stdout.Cyan("Warning: err binding struct!"))
+		logger.Warning("Err binding struct!","GoOwl-MainLog")
 		return
 	}
 	ref := strings.Split(hook.Ref, "/")
@@ -42,7 +42,7 @@ func GithubHookReceiver(c *gin.Context) {
 		c.JSON(500, gin.H{
 			"Status": "InternalServerError", //InternalServerErrorErr
 		})
-		fmt.Println(stdout.Cyan("Warning: No repo found with id " + repoID))
+		logger.Warning("No repo found with id " + repoID,"GoOwl-MainLog")
 		return
 	}
 	c.JSON(200, gin.H{
@@ -75,36 +75,30 @@ func GithubHookReceiver(c *gin.Context) {
 			c.JSON(500, gin.H{
 				"Status": "InternalServerError", //InternalServerErrorErr
 			})
-			fmt.Println(
-				stdout.Cyan(
-					"Warning: Pull error :repo " + repoID + "(" + repo.GetRepoName(
-						targetRepo,
-					) + ") reports " + err.Error(),
-				),
-			)
+				logger.Warning(
+					"Warning: Pull error:" + err.Error(),targetRepo.ID,
+				)
 			return
 		}
-		fmt.Println(stdout.Green("Done"))
-		fmt.Printf(
+		fmt.Println("Done")
+		logger.Info(fmt.Sprintf(
 			"Executing script %s under %s......\n-------------------------\n",
 			targetRepo.Buildscript,
 			repo.LocalRepoAddr(targetRepo),
-		)
+		),targetRepo.ID)
 		standout, err := repo.RunScript(targetRepo)
 		if err != nil {
-			fmt.Println(
-				stdout.Cyan(
-					"-------------------------\nWarning: Executing script failed:" + err.Error(),
-				),
-			)
+				logger.Error(
+					"-------------------------\nExecuting script failed:" + err.Error(),targetRepo.ID,
+				)
 		}
-		fmt.Println(standout)
-		fmt.Println("-------------------------\nCICD Done.")
+		logger.Info("Script output:"+standout,targetRepo.ID)
+		logger.Info("-------------------------\nCICD Done.",targetRepo.ID)
 		return
 	}
-	fmt.Printf(
+	logger.Notice(fmt.Sprintf(
 		"Hook received but does not match trigger condition.(%v,%v)\n",
 		targetRepo.ID,
 		repo.GetRepoName(targetRepo),
-	)
+	),targetRepo.ID)
 }

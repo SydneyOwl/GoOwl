@@ -4,24 +4,26 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"time"
 
 	"github.com/sydneyowl/GoOwl/common/config"
 	"github.com/sydneyowl/GoOwl/common/file"
 	"github.com/sydneyowl/GoOwl/common/global"
+	"github.com/sydneyowl/GoOwl/common/logger"
 	"github.com/sydneyowl/GoOwl/common/repo"
-	"github.com/sydneyowl/GoOwl/common/stdout"
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
 )
 
 var (
+	LoggingMethod int
 	yamlAddr      string
 	AppRouters    = make([]func(), 0) // Storages routers
 	skipRepoCheck bool
 	StartCmd      = &cobra.Command{
 		Use:     "run",
-		Short:   "Run GoOwl as backend",
+		Short:   "Run GoOwl",
 		Example: "GoOwl run -c config/settings.yml",
 		Run: func(cmd *cobra.Command, args []string) {
 			run()
@@ -31,69 +33,43 @@ var (
 
 //Specify yaml before run
 func init() {
+	addrConfig := file.GetCwd() + "/config/settings.yaml"
 	StartCmd.Flags().
-		StringVarP(&yamlAddr, "run", "c", "", "Run GoOwl using specified yaml config. Use $PWD/config/settings.yaml if not specified.")
+		StringVarP(&yamlAddr, "config", "c", addrConfig, "Run GoOwl using specified yaml config. Use $PWD/config/settings.yaml if not specified.")
 	StartCmd.Flags().BoolVar(&skipRepoCheck, "skip-repocheck", false, "Skip check of repo config, including address and authorization.")
+	StartCmd.Flags().IntVarP(&LoggingMethod,"log","l",1,"Specify logging method. 1->stdout 2->file 3->both.")
 }
 
-// run Run main application.
-func run() {
-	if readable, err := file.CheckYamlReadable(&yamlAddr); !readable {
-		fmt.Println(stdout.Magenta("FATAL:" + err.Error()))
-		return
-	}
-	rawConfig, err := config.LoadConfigFromYaml(yamlAddr) //returns raw viper obj
-	if err := config.CheckViperErr(err); err != nil {
-		fmt.Println(stdout.Magenta(err.Error()))
-		return
-	}
-	if err := rawConfig.Unmarshal(config.YamlConfig); err != nil {
-		fmt.Println(stdout.Magenta("Unknown Error occurred!"))
-		return
-	}
-	//Check repo
-	if repeated, err := repo.IsDuplcatedRepo(config.WorkspaceConfig.Repo); repeated {
-		fmt.Println(err.Error())
-		return
-	}
-	if !skipRepoCheck {
-		ID, uncritialerror, err := repo.CheckRepoConfig(config.WorkspaceConfig.Repo)
-		if err != nil {
-			fmt.Println(stdout.Magenta("Repo " + ID + " has an invaild config:" + err.Error()))
-			return
-		}
-		if len(uncritialerror) > 0 {
-			for _, v := range uncritialerror {
-				fmt.Println(
-					stdout.Magenta(
-						"repo " + v.ID + " has an invaild config:" + v.Uerror.Error() + ",check if it is correct.",
-					),
-				)
-			}
-		}
-	}else{
-		fmt.Println(stdout.Magenta("Check skipped."))
-	}
-	var iserr bool = false
+// initGin starts gin framework.
+func initGin() *gin.Engine {
+	r := gin.Default()
+	global.SetEngine(r)
+	//	common.InitMiddleware(r)
+	return r
+}
+
+//initCloneRepo clones repo on not exist
+func initCloneRepo() bool {
+	var exists bool
 	//Clone repo unexists
 	for _, v := range config.WorkspaceConfig.Repo {
 		if repo.Checkprotocol(v) == "ssh" {
-			fmt.Println(stdout.Yellow("Manually answer yes if required."))
+			logger.Notice("Manually answer yes if required.","GoOwl-MainLog")
 		}
 		if err := repo.CloneOnNotExist(v); err != nil {
 			global.RejectedRepo = append(global.RejectedRepo, v.ID)
-			iserr = true
-			fmt.Println(stdout.Cyan("Error:" + err.Error()))
+			exists = true
+			logger.Error("Error:" + err.Error(),v.ID)
 		}
 	}
-	if iserr {
-		fmt.Println(stdout.Cyan("Err occured. Check and fix it if necessary. Those routes of repos that failed to clone will not be registered."))
-	}
+	return exists
+}
+func initGinEngine() (engine *gin.Engine, suspend bool) {
 	//set to release mode
 	if config.ApplicationConfig.Mode == "release" {
 		gin.SetMode(gin.ReleaseMode)
 	}
-	engine := initGin()
+	engine = initGin()
 	//init routes
 	for _, f := range AppRouters {
 		f() //init all routers!
@@ -109,6 +85,7 @@ func run() {
 		}
 	} else {
 		fmt.Println("No route is registered. GoOwl suspend")
+		suspend = true
 		//rej
 		for _, v := range global.RejectedRepo {
 			fmt.Printf("[rejected] Repo %v(%v)\n", v, "failed to clone")
@@ -118,22 +95,54 @@ func run() {
 	for _, v := range routers {
 		fmt.Println(v.Route + "---------------->" + v.Explanation)
 	}
-	//goroutine to use interreput
-	go engine.Run(
-		fmt.Sprintf("%s:%d", config.ApplicationConfig.Host, config.ApplicationConfig.Port),
-	)
+	return
+}
+
+// run Run main application.
+func run() {
+	global.LoggingMethod=LoggingMethod
+	fmt.Println(global.LoggingMethod)
+	if global.LoggingMethod!=1&&global.LoggingMethod!=2&&global.LoggingMethod!=3{
+		global.LoggingMethod=1//reset
+	}
+	if global.LoggingMethod!=1{
+		file.CreateDir(file.GetCwd()+"/log")
+		for _,v := range config.WorkspaceConfig.Repo{
+			name:=v.ID
+			curDate:=time.Now().Format("2006-01-02 15:04:05")
+			err:=file.CreateFile(fmt.Sprintf("[%s]Repo_%s",curDate,name))
+			if err!=nil{
+				fmt.Println("Error creating log file!")
+				return
+			}
+		}
+	}
+	config.InitConfig(&yamlAddr)
+	//Check repo
+	if !skipRepoCheck {
+		repo.CheckRepo()
+	} else {
+		logger.Notice("Check skipped.","GoOwl-MainLog")
+	}
+	//init all repo
+	var iserr bool = initCloneRepo()
+	if iserr {
+		logger.Error("Err occured. Check and fix it if necessary. Those routes of repos that failed to clone will not be registered.","GoOwl-MainLog")
+	}
+	if engine, suspend := initGinEngine(); suspend {
+		return
+	} else {
+		//goroutine to use interreput
+		go engine.Run(
+			fmt.Sprintf("%s:%d", config.ApplicationConfig.Host, config.ApplicationConfig.Port),
+		)
+	}
+	if global.LoggingMethod==3{
+		logger.Notice("Log write to stdout. No file will be used to storage log.","GoOwl-MainLog")
+	}
 	//In order to use ^c
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt) //STUFF UNTIL CHAN IN
 	<-quit
 	fmt.Println("\nGoOwl Exit.")
-}
-
-//set engine to global
-func initGin() *gin.Engine {
-
-	r := gin.Default()
-	global.SetEngine(r)
-	//	common.InitMiddleware(r)
-	return r
 }
