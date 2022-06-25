@@ -2,49 +2,65 @@
 ![Go](https://github.com/sydneyowl/GoOwl/actions/workflows/GoOwl_Build.yml/badge.svg) [![card](https://goreportcard.com/badge/github.com/sydneyowl/GoOwl)](https://goreportcard.com/report/github.com/sydneyowl/GoOwl) [![CodeQL](https://github.com/SydneyOwl/GoOwl/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/SydneyOwl/GoOwl/actions/workflows/codeql-analysis.yml)  ![go_version](https://img.shields.io/badge/Go-1.18.1-brightgreen) [![Go Reference](https://pkg.go.dev/badge/github.com/sydneyowl/GoOwl.svg)](https://pkg.go.dev/github.com/sydneyowl/GoOwl) [![Release](https://img.shields.io/github/v/tag/SydneyOwl/GoOwl)](https://github.com/sydneyowl/GoOwl/releases/latest) 
 ## What is GoOwl
 GoOwl is a basic CI/CD tool. By filling a simple yaml file, you can:
-+ Clone all repos automatically at the first time
-+ pull spcified repos when receiving hooks
-+ execute script when repos are pulled
+- [x]  clone all repos automatically at the first time
+- [x]  pull spcified repos when receiving hooks
+- [x]  execute script when repos are pulled
+- [ ]  return a badge showing build status
 
 ## How to use GoOwl
  ***~GoOwl is unstable currently. Do not use it in an production env and should try it in docker or virtual machine instead.~ Windows and Mac releases are not reliable since they're not being tested.***
 
 Firstly you need to fill a yaml file, which is located at config/standard.yaml and could be found in this repo. It should look like this if filled correctly:
 
-```yaml
+```yml
 settings:
   application:
     mode: release
     host: 0.0.0.0
-    name: Hello GoOwl!
+    name: testApp
     port: 1234
   workspace:
     path: /home/golang-coder/Workspace
     repo:
       -
-        id: 1 
+        id: gogs-test-token
         type: gogs
         trigger: ['push']
-        repoaddr: https://website.com/GoOwl/hello.git
-        username: someone
-        password: 123
-        buildscript: /home/golang-coder/Workspace/script/buildme2.sh
+        repoaddr: https://git....
+        token: abc
+        buildscript: /home/golang-coder/Workspace/script/test.sh
         branch: master
       -
-        id: 2
+        id: gogs-test-up-userpass
         type: gogs
-        trigger: ['push','pull']
-        repoaddr: someone@website.com:someone/repo.git
-        sshkeyaddr: /home/golang-coder/Workspace/ssh/repo
-        buildscript: /script/buildme1.sh
-        branch: dev
+        trigger: push
+        repoaddr: https://git
+        username: 123
+        password: 123
+        buildscript: 
+        branch: master
       -
-        id: 3
-        type: github
+        id: gogs-test-ssh
+        type: gogs
         trigger: ['push']
-        repoaddr: someone@website.com:someone/repo1.git
-        token: abcd1234
-        buildscript: /script/buildme0.sh
+        repoaddr: git@git...
+        sshkeyaddr: /home/golang-coder/Workspace/id_rsa
+        buildscript: 
+        branch: master
+      -
+        id: github-test-token
+        type: github
+        trigger: push
+        repoaddr: https://git
+        token: ghp_....
+        buildscript: /home/golang-coder/Workspace/script/test1.sh
+        branch: main
+      -
+        id: github-test-ssh
+        type: github
+        trigger: push
+        repoaddr: git@git...
+        sshkeyaddr: /home/golang-coder/Workspace/id_rsa_2
         branch: main
 ```
 + `id` could be anything that could identify repos. Should be unique.
@@ -74,8 +90,7 @@ Run `./GoOwl --help` to get more info.
 
 Run `./GoOwl checkenv` to check if everything works well.  
 
-Use `-l [1,2,3]` or `--log [1,2,3]` to use log func. 1 means output to stdout, 2 means output to file only(workspace/log/...), 3 means output to both file and stdout.
-
+Use `-l [1,2,3]` or `--log [1,2,3]` to use log func. 1 means output to stdout, 2 means output to file only(workspace/log/...), 3 means output to both file and stdout. They all storaged in workspace.path/log specified in the yml by default.
 
 To start the hook listener and cicd server, run `./GoOwl run`. GoOwl will automatically clone repo at the first time. You need to input "yes" if you uses ssh to clone them. If you'd like to ignore repo checking(whether config is properly filled), use `--skip-repocheck`. 
 
