@@ -1,14 +1,16 @@
-package hook
+package repo
 
-type GogsHook struct {
+type Hook struct {
 	// branch
 	Ref string
 	//Before refers to hash before push.
 	Before string
 	//After refers to hash after push.
 	After  string
-	Pusher GogsPusher
+	Pusher Pusher
 }
-type GogsPusher struct {
+type Pusher struct {
+	Name string
+	//Gogs
 	Username string
 }

@@ -101,12 +101,12 @@ func initGinEngine() (engine *gin.Engine, suspend bool) {
 // run Run main application.
 func run() {
 	global.LoggingMethod=LoggingMethod
-	fmt.Println(global.LoggingMethod)
+	// fmt.Println(global.LoggingMethod)
 	if global.LoggingMethod!=1&&global.LoggingMethod!=2&&global.LoggingMethod!=3{
 		global.LoggingMethod=1//reset
 	}
 	if global.LoggingMethod!=1{
-		file.CreateDir(file.GetCwd()+"/log")
+		file.CreateDir(config.WorkspaceConfig.Path+"/log")
 		for _,v := range config.WorkspaceConfig.Repo{
 			name:=v.ID
 			curDate:=time.Now().Format("2006-01-02 15:04:05")

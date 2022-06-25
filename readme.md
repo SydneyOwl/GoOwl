@@ -74,7 +74,7 @@ Run `./GoOwl --help` to get more info.
 
 Run `./GoOwl checkenv` to check if everything works well.  
 
-Use `-l [1,2,3]` or `--log [1,2,3]` to use log func. 1 means output to stdout, 2 means output to file only(./log), 3 means output to both file and stdout.
+Use `-l [1,2,3]` or `--log [1,2,3]` to use log func. 1 means output to stdout, 2 means output to file only(workspace/log/...), 3 means output to both file and stdout.
 
 
 To start the hook listener and cicd server, run `./GoOwl run`. GoOwl will automatically clone repo at the first time. You need to input "yes" if you uses ssh to clone them. If you'd like to ignore repo checking(whether config is properly filled), use `--skip-repocheck`. 

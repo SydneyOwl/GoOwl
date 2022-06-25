@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/sydneyowl/GoOwl/common/config"
-	"github.com/sydneyowl/GoOwl/common/hook"
 	"github.com/sydneyowl/GoOwl/common/logger"
 	"github.com/sydneyowl/GoOwl/common/repo"
 
@@ -16,8 +15,8 @@ import (
 func GogsHookReceiver(c *gin.Context) {
 	fmt.Println("Hook received from gogs...")
 	action := c.GetHeader("X-Gogs-Event")
-	hook := hook.GogsHook{
-		Pusher: hook.GogsPusher{},
+	hook := repo.Hook{
+		Pusher: repo.Pusher{},
 	}
 	err := c.ShouldBind(&hook)
 	if err != nil {
@@ -43,55 +42,11 @@ func GogsHookReceiver(c *gin.Context) {
 	})
 	//match trigger pull condition.
 	if config.CheckInSlice(targetRepo.Trigger, action) && triggerBranch == targetRepo.Branch {
-		po := repo.PullOptions{
-			Remote: targetRepo.Repoaddr,
-			Branch: targetRepo.Branch,
-		}
-		if repo.Checkprotocol(targetRepo) == "ssh" {
-			po.Protocol = "ssh"
-			po.Sshkey = targetRepo.Sshkeyaddr
-		} else {
-			po.Protocol = "http"
-			po.Username = targetRepo.Username
-			po.Password = targetRepo.Password
-		}
-		fmt.Println("----------------" + action + "----------------")
-		fmt.Printf(
-			"Pulling updated Repo:%s(%s),Hash: %s -> %s, %sed by %s......",
+		repo.StartPullAndWorkflow(targetRepo,hook,action)
+	}else{
+		logger.Notice(fmt.Sprintf(
+			"Hook received but does not match trigger condition.(%v,%v)\n",
 			targetRepo.ID,
 			repo.GetRepoName(targetRepo),
-			hook.Before[0:6],
-			hook.After[0:6],
-			action,
-			hook.Pusher.Username,
-		)
-		if err := repo.Pull(repo.LocalRepoAddr(targetRepo), po); err != nil {
-			c.JSON(500, gin.H{
-				"Status": "InternalServerError", //InternalServerErrorErr
-			})
-			logger.Warning(
-				"Pull error: "+err.Error(), targetRepo.ID)
-			return
-		}
-		fmt.Println("Done")
-		logger.Info(fmt.Sprintf(
-			"Executing script %s under %s......\n-------------------------\n",
-			targetRepo.Buildscript,
-			repo.LocalRepoAddr(targetRepo),
-		), targetRepo.ID)
-		standout, err := repo.RunScript(targetRepo)
-		if err != nil {
-			logger.Error(
-				"-------------------------\nExecuting script failed:"+err.Error(), targetRepo.ID,
-			)
-		}
-		logger.Info("Script output:"+standout, targetRepo.ID)
-		logger.Info("-------------------------\nCICD Done.", targetRepo.ID)
-		return
-	}
-	logger.Notice(fmt.Sprintf(
-		"Hook received but does not match trigger condition.(%v,%v)\n",
-		targetRepo.ID,
-		repo.GetRepoName(targetRepo),
-	), targetRepo.ID)
+		),targetRepo.ID)}
 }

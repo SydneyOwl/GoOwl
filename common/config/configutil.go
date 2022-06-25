@@ -2,15 +2,10 @@ package config
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/spf13/viper"
 	"github.com/sydneyowl/GoOwl/common/file"
-	"github.com/sydneyowl/GoOwl/common/logger"
-)
-
-var (
-	ConfigFormatNotSupportedError = errors.New("unknown setting format")
-	ConfigContentError            = errors.New("yaml Error-Check your yaml content")
 )
 
 // LoadConfigFromYaml Returns raw viper object that could be read directly.
@@ -27,9 +22,10 @@ func LoadConfigFromYaml(configFile string) (*viper.Viper, error) {
 func CheckViperErr(err error) error {
 	if err != nil {
 		if _, ok := err.(viper.UnsupportedConfigError); ok {
-			return ConfigFormatNotSupportedError
+			return errors.New("unknown setting format")
+			// ConfigContentError            = 
 		} else {
-			return ConfigContentError
+			return errors.New("yaml Error-Check your yaml content")
 		}
 	}
 	return nil
@@ -46,16 +42,16 @@ func CheckInSlice(compareTo []string, from string) bool {
 }
 func InitConfig(yamlAddr *string){
 	if readable, err := file.CheckYamlReadable(yamlAddr); !readable {
-		logger.Fatal(err.Error(),"GoOwl-MainLog")
+		fmt.Println(err.Error())
 		return
 	}
 	rawConfig, err := LoadConfigFromYaml(*yamlAddr) //returns raw viper obj
 	if err := CheckViperErr(err); err != nil {
-		logger.Error(err.Error(),"GoOwl-MainLog")
+		fmt.Println(err.Error())
 		return
 	}
 	if err := rawConfig.Unmarshal(YamlConfig); err != nil {
-		logger.Warning("Unknown Error occurred!","GoOwl-MainLog")
+		fmt.Println("Unknown Error occurred!","GoOwl-MainLog")
 		return
 	}
 }

@@ -2,6 +2,7 @@ package logger
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"os"
 	_ "strconv"
@@ -9,16 +10,19 @@ import (
 
 	"github.com/sydneyowl/GoOwl/common/file"
 	"github.com/sydneyowl/GoOwl/common/global"
-
+	"github.com/sydneyowl/GoOwl/common/config"
 	"github.com/fatih/color"
 )
 
 func CreateOnNotExist(id string) error {
 	if global.LoggingMethod != 1 {
-		file.CreateDir(file.GetCwd() + "/log")
-		now:=time.Now()
-	curDate := fmt.Sprintf("%d-%d-%d",now.Year(),now.Month(),now.Day())
-		err := file.CreateFile(file.GetCwd() + "/log/" + fmt.Sprintf("[%s]Repo_%s", curDate, id))
+		err := file.CreateDir(config.WorkspaceConfig.Path + "/log")
+		if err!=nil&&!errors.Is(err,os.ErrExist){
+			return err
+		}
+		now := time.Now()
+		curDate := fmt.Sprintf("%d-%d-%d", now.Year(), now.Month(), now.Day())
+		err = file.CreateFile(config.WorkspaceConfig.Path + "/log/" + fmt.Sprintf("[%s]Repo_%s", curDate, id))
 		if err != nil {
 			return err
 		}
@@ -27,13 +31,13 @@ func CreateOnNotExist(id string) error {
 }
 
 func AppendLog(id string, msg string) error {
-	now:=time.Now()
-	curDate := fmt.Sprintf("%d-%d-%d",now.Year(),now.Month(),now.Day())
-	filePtr, err := os.OpenFile(file.GetCwd()+"/log/"+fmt.Sprintf("[%s]Repo_%s", curDate, id), os.O_WRONLY|os.O_APPEND, 0666)
+	now := time.Now()
+	curDate := fmt.Sprintf("%d-%d-%d", now.Year(), now.Month(), now.Day())
+	filePtr, err := os.OpenFile(config.WorkspaceConfig.Path+"/log/"+fmt.Sprintf("[%s]Repo_%s", curDate, id), os.O_WRONLY|os.O_APPEND, 0666)
 	if err != nil {
 		if os.IsNotExist(err) {
 			CreateOnNotExist(id)
-			filePtr, _ = os.OpenFile(file.GetCwd()+"/log/"+fmt.Sprintf("[%s]Repo_%s", curDate, id), os.O_WRONLY|os.O_APPEND, 0666)
+			filePtr, _ = os.OpenFile(config.WorkspaceConfig.Path+"/log/"+fmt.Sprintf("[%s]Repo_%s", curDate, id), os.O_WRONLY|os.O_APPEND, 0666)
 		} else {
 			return err
 		}
@@ -141,7 +145,7 @@ func logFactory(msg interface{}, id string, level string) {
 		} else {
 			logInfo = fmt.Sprintf("%s [Info-Repo %s] %s", timestr, id, msg)
 		}
-		infocolor =logInfo
+		infocolor = logInfo
 	}
 	if global.LoggingMethod == 1 {
 		fmt.Println(infocolor)
@@ -153,20 +157,20 @@ func logFactory(msg interface{}, id string, level string) {
 	}
 }
 func Debug(msg interface{}, id string) {
-	logFactory(msg,id,"Debug")
+	logFactory(msg, id, "Debug")
 }
-func Info(msg interface{},id string){
-	logFactory(msg,id,"Info")
+func Info(msg interface{}, id string) {
+	logFactory(msg, id, "Info")
 }
 func Notice(msg interface{}, id string) {
-	logFactory(msg,id,"Notice")
+	logFactory(msg, id, "Notice")
 }
 func Warning(msg interface{}, id string) {
-	logFactory(msg,id,"Warning")
+	logFactory(msg, id, "Warning")
 }
 func Error(msg interface{}, id string) {
-	logFactory(msg,id,"Error")
+	logFactory(msg, id, "Error")
 }
 func Fatal(msg interface{}, id string) {
-	logFactory(msg,id,"Fatal")
+	logFactory(msg, id, "Fatal")
 }

@@ -40,14 +40,14 @@ type PullOptions struct {
 	Protocol string
 	// Indicates whether to rebased during pulling.
 	Rebase bool
-	//
+	// Git rep
 	Type string
 	// sshkey used for clone.
 	Sshkey string
-	//Under http protocol
+	// Under http protocol
 	Username string
 	Password string
-	//github only
+	// Auth type
 	Token string
 	// Indicates whether to pull from all remotes.
 	All bool
@@ -74,7 +74,7 @@ func Pull(dst string, opts ...PullOptions) error {
 	} else { //https
 		cmd = command.NewCommand("pull")
 		if !opt.isPublicRepo() {
-			if targetURL != "" { //git pull ....
+			if opt.Token != "" { //git pull ....
 				if opt.Type == "github" {
 					target, err := getOauthRepoURL(targetURL, opt.Token)
 					if err != nil {
