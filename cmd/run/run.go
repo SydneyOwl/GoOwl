@@ -137,8 +137,8 @@ func run() {
 			fmt.Sprintf("%s:%d", config.ApplicationConfig.Host, config.ApplicationConfig.Port),
 		)
 	}
-	if global.LoggingMethod==3{
-		logger.Notice("Log write to stdout. No file will be used to storage log.","GoOwl-MainLog")
+	if global.LoggingMethod==2{
+		fmt.Println("Log write to file only.")
 	}
 	//In order to use ^c
 	quit := make(chan os.Signal, 1)

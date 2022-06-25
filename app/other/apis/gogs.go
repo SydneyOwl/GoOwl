@@ -38,7 +38,7 @@ func GogsHookReceiver(c *gin.Context) {
 		return
 	}
 	c.JSON(200, gin.H{
-		"Status": "Success", //InternalServerErrorErr
+		"Status": "Success",
 	})
 	//match trigger pull condition.
 	if config.CheckInSlice(targetRepo.Trigger, action) && triggerBranch == targetRepo.Branch {
@@ -46,7 +46,7 @@ func GogsHookReceiver(c *gin.Context) {
 	}else{
 		logger.Notice(fmt.Sprintf(
 			"Hook received but does not match trigger condition.(%v,%v)\n",
-			targetRepo.ID,
+			repoID,
 			repo.GetRepoName(targetRepo),
-		),targetRepo.ID)}
+		),repoID)}
 }

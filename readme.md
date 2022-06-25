@@ -74,7 +74,7 @@ Run `./GoOwl --help` to get more info.
 
 Run `./GoOwl checkenv` to check if everything works well.  
 
-~Use `-l [1,2,3]` or `--log [1,2,3]` to use log func. 1 means output to stdout, 2 means output to file only(workspace/log/...), 3 means output to both file and stdout.~<-under test
+Use `-l [1,2,3]` or `--log [1,2,3]` to use log func. 1 means output to stdout, 2 means output to file only(workspace/log/...), 3 means output to both file and stdout.
 
 
 To start the hook listener and cicd server, run `./GoOwl run`. GoOwl will automatically clone repo at the first time. You need to input "yes" if you uses ssh to clone them. If you'd like to ignore repo checking(whether config is properly filled), use `--skip-repocheck`. 
@@ -88,7 +88,8 @@ GoOwl displays hook path on start(example):
 you may use `https://domain:port/gogs/1/hook` as the hook address of repo 1 for example. When GoOwl received webhook, it will start executing script automatically and print result out. However, if repo failed to clone on start, the route of the repo won't be registered, which means the hook of the repo is unavailable. 
 
 full example:
-![pic_1](./md_pic/1.png)![pic_2](./md_pic/2.png)
+![](./md_pic/1.png)
+![](./md_pic/2.png)
 
 ## More...
 `GoOwl` may be buggy currently. Issues are welcome.

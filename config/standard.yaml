@@ -2,33 +2,48 @@ settings:
   application:
     mode: release
     host: 0.0.0.0
-    name: Hello GoOwl!
+    name: testApp
     port: 1234
   workspace:
-    path: 
+    path: /home/golang-coder/Workspace
     repo:
       -
-        id: 1 
+        id: gogs-test-token
         type: gogs
         trigger: ['push']
-        repoaddr: 
-        username: 
-        password: 
+        repoaddr: https://git....
+        token: abc
+        buildscript: /home/golang-coder/Workspace/script/test.sh
+        branch: master
+      -
+        id: gogs-test-up-userpass
+        type: gogs
+        trigger: push
+        repoaddr: https://git
+        username: 123
+        password: 123
         buildscript: 
         branch: master
       -
-        id: 2 
+        id: gogs-test-ssh
         type: gogs
         trigger: ['push']
-        repoaddr: 
-        sshkeyaddr: 
+        repoaddr: git@git...
+        sshkeyaddr: /home/golang-coder/Workspace/id_rsa
         buildscript: 
         branch: master
       -
-        id: 3
+        id: github-test-token
         type: github
-        trigger: ['push']
-        repoaddr: 
-        token: 
-        buildscript: 
+        trigger: push
+        repoaddr: https://git
+        token: ghp_....
+        buildscript: /home/golang-coder/Workspace/script/test1.sh
+        branch: main
+      -
+        id: github-test-ssh
+        type: github
+        trigger: push
+        repoaddr: git@git...
+        sshkeyaddr: /home/golang-coder/Workspace/id_rsa_2
         branch: main
