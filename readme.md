@@ -67,8 +67,7 @@ settings:
 + `workspace`.`path` defines the location repos downloaded by GoOwl storage in.
 + `buildscript` refers to the script you want to execute after specified repo is pulled. (this script will run in the directory of the repo so you don't need to use absolute addr.)
 + When using ssh, only `sshkeyaddr` and repoaddr in ssh form is needed. `username` and `password` is needed only when you need to access the repo via http(s). **However, if the repo is on github, you should use token instead of `username` and `password` since github does not supports username and password authorization via http(s).**
-+ `branch` refers to the brance you want to clone/pull.
-+ `token` should be used in ssh and only supports github now.
++ `branch` refers to the branch you want to clone/pull.
 
 Ignore username,password or token if it is an public repo accessed via http(s) with correct settings.
 
