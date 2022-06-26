@@ -33,4 +33,8 @@ func initgroup() {
 			})
 		}
 	}
+	routeStats := "/:repoid/status.svg"
+	StatusRouterGroup=append(StatusRouterGroup, func(rg *gin.RouterGroup) {
+		rg.GET(routeStats,apis.ReportBuildStatus)
+	})
 }

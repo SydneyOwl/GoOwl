@@ -43,6 +43,9 @@ func GetAllRouters() []routerDetail {
 				routesplit[1],
 			)
 		}
+		if strings.Contains(v.Path, "repoid") {
+			routerCurrent.Explanation = ":repoid should be replaced to get repo status"
+		}
 		detail = append(detail, routerCurrent)
 	}
 	return detail

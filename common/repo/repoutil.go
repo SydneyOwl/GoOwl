@@ -180,7 +180,11 @@ func GetRepoName(repo config.Repo) string {
 	repoarr := strings.Split(repo.Repoaddr, "/")
 	return repoarr[len(repoarr)-1]
 }
-
+// GetRepoOriginal returns reponame withoutgit.
+func GetRepoOriginalName(repo config.Repo) string {
+	name:=GetRepoName(repo)
+	return name[0:len(name)-4]
+}
 //CloneOnNotExist clone repo not exist locally
 func CloneOnNotExist(repo config.Repo) error {
 	localAddr := LocalRepoAddr(repo)
@@ -221,7 +225,7 @@ func SearchRepo(ID string) (config.Repo, error) {
 	}
 	return config.Repo{
 		ID: "",
-	}, nil
+	}, errors.New("no found")
 }
 
 //Runscript run script inside repo dir.
@@ -265,6 +269,15 @@ func CheckRepo(){
 	if len(uncritialerror) > 0 {
 		for _, v := range uncritialerror {
 				logger.Warning("repo  has an invaild config:" + v.Uerror.Error() + ",check if it is correct.",v.ID)
+		}
+	}
+}
+//SetBuildStat modify build status of repo.
+func SetBuildStat(id string,stat int){
+	for i, v := range config.WorkspaceConfig.Repo {
+		if v.ID == id {
+			config.WorkspaceConfig.Repo[i].BuildStatus=stat
+			break
 		}
 	}
 }

@@ -40,14 +40,14 @@ func StartPullAndWorkflow(repo config.Repo, hook Hook, action string) {
 		name), repo.ID,
 	)
 	if err := Pull(LocalRepoAddr(repo), po); err != nil {
-		repo.BuildStatus = 1
+		SetBuildStat(repo.ID,1)
 		logger.Warning(
 			"Pull error: "+err.Error(), repo.ID)
 		return
 	}
 	//don't throw unrelated exception
 	logger.Info("Done Pulling",repo.ID)
-	repo.BuildStatus = 2
+	SetBuildStat(repo.ID,2)
 	logger.Info(fmt.Sprintf(
 		"Executing script %s under %s......\n",
 		repo.Buildscript,
@@ -55,12 +55,14 @@ func StartPullAndWorkflow(repo config.Repo, hook Hook, action string) {
 	), repo.ID)
 	standout, err := RunScript(repo)
 	if err != nil {
-		repo.BuildStatus = 1
+		SetBuildStat(repo.ID,1)
 		logger.Error(
 			"Executing script failed:"+err.Error(), repo.ID,
 		)
+		return
+	}else{
+		logger.Info("Script output:"+standout, repo.ID)
 	}
-	logger.Info("Script output:"+standout, repo.ID)
 	logger.Info("CICD Done.", repo.ID)
-	repo.BuildStatus = 3
+	SetBuildStat(repo.ID,3)
 }

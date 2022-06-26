@@ -10,6 +10,7 @@ import (
 var (
 	GogsRouterGroup   = make([]func(*gin.RouterGroup), 0)
 	GithubRouterGroup = make([]func(*gin.RouterGroup), 0)
+	StatusRouterGroup = make([]func(*gin.RouterGroup), 0)
 )
 
 // GogsRouter defines group router name of hook of gogs.
@@ -29,11 +30,17 @@ func GithubRouter(eng *gin.Engine) {
 		f(v1) //give them same address
 	}
 }
-
+func StatusRouter(eng *gin.Engine){
+	v1:=eng.Group("/status")
+	for _, f := range StatusRouterGroup {
+		f(v1) //give them same address
+	}
+}
 // initAllRouter simply init all routers
 func InitAllRouter() {
 	initgroup()
 	engine := global.GetEngine()
 	GogsRouter(engine) //engine gogs
 	GithubRouter(engine)
+	StatusRouter(engine)
 }
