@@ -15,7 +15,7 @@ func initgroup() {
 	//hooks only!
 	for _, v := range config.WorkspaceConfig.Repo {
 		//reject repo
-		if config.CheckInSlice(global.RejectedRepo,v.ID){
+		if config.CheckInSlice(global.RejectedRepo, v.ID) {
 			continue
 		}
 		route := fmt.Sprintf("/%s/hook", v.ID)
@@ -34,7 +34,7 @@ func initgroup() {
 		}
 	}
 	routeStats := "/:repoid/status.svg"
-	StatusRouterGroup=append(StatusRouterGroup, func(rg *gin.RouterGroup) {
-		rg.GET(routeStats,apis.ReportBuildStatus)
+	StatusRouterGroup = append(StatusRouterGroup, func(rg *gin.RouterGroup) {
+		rg.GET(routeStats, apis.ReportBuildStatus)
 	})
 }

@@ -22,13 +22,17 @@ func CheckPathExists(path string) (bool, error) {
 	}
 	return false, err
 }
+
+//GetCwd returns current path.
 func GetCwd() string {
 	path, err := os.Getwd()
 	if err != nil {
-		panic("Cannot get currdir!")
+		panic("Cannot get current directory! GoOwl Stop.")
 	}
 	return path
 }
+
+//CreateFile creates file on specified path.
 func CreateFile(filepath string) error {
 	if !isExist(filepath) {
 		f, err := os.Create(filepath)
@@ -37,11 +41,13 @@ func CreateFile(filepath string) error {
 	}
 	return nil
 }
+
+//CreateDirOnPwd create an diectory on current position.
 func CreateDirOnPwd() {
 	CreateDir(GetCwd())
 }
 
-//调⽤os.MkdirAll递归创建⽂件夹
+// CreateDir create dir recursively.
 func CreateDir(filePath string) error {
 	if !isExist(filePath) {
 		err := os.MkdirAll(filePath, os.ModePerm)
@@ -50,9 +56,9 @@ func CreateDir(filePath string) error {
 	return nil
 }
 
-// 判断所给路径⽂件/⽂件夹是否存在(返回true是存在)
+// isExist check if pathexists.
 func isExist(path string) bool {
-	_, err := os.Stat(path) //os.Stat获取⽂件信息
+	_, err := os.Stat(path)
 	if err != nil {
 		return os.IsExist(err)
 	}

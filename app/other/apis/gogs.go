@@ -42,11 +42,12 @@ func GogsHookReceiver(c *gin.Context) {
 	})
 	//match trigger pull condition.
 	if config.CheckInSlice(targetRepo.Trigger, action) && triggerBranch == targetRepo.Branch {
-		repo.StartPullAndWorkflow(targetRepo,hook,action)
-	}else{
+		repo.StartPullAndWorkflow(targetRepo, hook, action)
+	} else {
 		logger.Notice(fmt.Sprintf(
 			"Hook received but does not match trigger condition.(%v,%v)\n",
 			repoID,
 			repo.GetRepoName(targetRepo),
-		),repoID)}
+		), repoID)
+	}
 }

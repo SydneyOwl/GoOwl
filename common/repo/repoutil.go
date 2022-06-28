@@ -20,7 +20,6 @@ type UncriticalError struct {
 	ID     string
 }
 
-
 var (
 	token_supported []string = []string{"gogs", "github"}
 )
@@ -73,7 +72,6 @@ func getOauthRepoURL(url string, token string) (string, error) {
 	), nil
 }
 
-
 // CheckRepoConfig checks if any attr is empty.
 func CheckRepoConfig(repoarray []config.Repo) (string, []UncriticalError, error) {
 	var bser []UncriticalError
@@ -103,8 +101,10 @@ func CheckRepoConfig(repoarray []config.Repo) (string, []UncriticalError, error)
 		}
 		if isPublicRepo(v) {
 			bser = append(bser, UncriticalError{
-				ID:     v.ID,
-				Uerror: errors.New("repo delare itself as public since neither username/password nor token is specified"),
+				ID: v.ID,
+				Uerror: errors.New(
+					"repo delare itself as public since neither username/password nor token is specified",
+				),
 			})
 			continue //Ignore since it is an public repo
 		}
@@ -180,11 +180,13 @@ func GetRepoName(repo config.Repo) string {
 	repoarr := strings.Split(repo.Repoaddr, "/")
 	return repoarr[len(repoarr)-1]
 }
+
 // GetRepoOriginal returns reponame withoutgit.
 func GetRepoOriginalName(repo config.Repo) string {
-	name:=GetRepoName(repo)
-	return name[0:len(name)-4]
+	name := GetRepoName(repo)
+	return name[0 : len(name)-4]
 }
+
 //CloneOnNotExist clone repo not exist locally
 func CloneOnNotExist(repo config.Repo) error {
 	localAddr := LocalRepoAddr(repo)
@@ -193,11 +195,11 @@ func CloneOnNotExist(repo config.Repo) error {
 		return err
 	}
 	if exists {
-		logger.Info("Repo "+ repo.ID+ " already exists. Passing......", "GoOwl-MainLog")
+		logger.Info("Repo "+repo.ID+" already exists. Passing......", "GoOwl-MainLog")
 		return nil
 	}
 
-	logger.Info("Cloning repo"+repo.ID+ "...",repo.ID)
+	logger.Info("Cloning repo"+repo.ID+"...", repo.ID)
 	option := CloneOptions{
 		Branch: repo.Branch,
 	}
@@ -256,27 +258,31 @@ func IsDuplcatedRepo(repos []config.Repo) (bool, error) {
 	}
 	return false, nil
 }
-func CheckRepo(){
+func CheckRepo() {
 	if repeated, err := IsDuplcatedRepo(config.WorkspaceConfig.Repo); repeated {
 		fmt.Println(err.Error())
 		return
 	}
 	ID, uncritialerror, err := CheckRepoConfig(config.WorkspaceConfig.Repo)
 	if err != nil {
-		logger.Error("Repo has an invaild config:" + err.Error(),ID)
+		logger.Error("Repo has an invaild config:"+err.Error(), ID)
 		return
 	}
 	if len(uncritialerror) > 0 {
 		for _, v := range uncritialerror {
-				logger.Warning("repo  has an invaild config:" + v.Uerror.Error() + ",check if it is correct.",v.ID)
+			logger.Warning(
+				"repo  has an invaild config:"+v.Uerror.Error()+",check if it is correct.",
+				v.ID,
+			)
 		}
 	}
 }
+
 //SetBuildStat modify build status of repo.
-func SetBuildStat(id string,stat int){
+func SetBuildStat(id string, stat int) {
 	for i, v := range config.WorkspaceConfig.Repo {
 		if v.ID == id {
-			config.WorkspaceConfig.Repo[i].BuildStatus=stat
+			config.WorkspaceConfig.Repo[i].BuildStatus = stat
 			break
 		}
 	}

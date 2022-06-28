@@ -36,8 +36,10 @@ func init() {
 	addrConfig := file.GetCwd() + "/config/settings.yaml"
 	StartCmd.Flags().
 		StringVarP(&yamlAddr, "config", "c", addrConfig, "Run GoOwl using specified yaml config. Use $PWD/config/settings.yaml if not specified.")
-	StartCmd.Flags().BoolVar(&skipRepoCheck, "skip-repocheck", false, "Skip check of repo config, including address and authorization.")
-	StartCmd.Flags().IntVarP(&LoggingMethod,"log","l",1,"Specify logging method. 1->stdout 2->file 3->both.")
+	StartCmd.Flags().
+		BoolVar(&skipRepoCheck, "skip-repocheck", false, "Skip check of repo config, including address and authorization.")
+	StartCmd.Flags().
+		IntVarP(&LoggingMethod, "log", "l", 1, "Specify logging method. 1->stdout 2->file 3->both.")
 }
 
 // initGin starts gin framework.
@@ -54,16 +56,18 @@ func initCloneRepo() bool {
 	//Clone repo unexists
 	for _, v := range config.WorkspaceConfig.Repo {
 		if repo.Checkprotocol(v) == "ssh" {
-			logger.Notice("Manually answer yes if required.","GoOwl-MainLog")
+			logger.Notice("Manually answer yes if required.", "GoOwl-MainLog")
 		}
 		if err := repo.CloneOnNotExist(v); err != nil {
 			global.RejectedRepo = append(global.RejectedRepo, v.ID)
 			exists = true
-			logger.Error("Error:" + err.Error(),v.ID)
+			logger.Error("Error:"+err.Error(), v.ID)
 		}
 	}
 	return exists
 }
+
+//initGinEngine init gin engine.
 func initGinEngine() (engine *gin.Engine, suspend bool) {
 	//set to release mode
 	if config.ApplicationConfig.Mode == "release" {
@@ -100,18 +104,18 @@ func initGinEngine() (engine *gin.Engine, suspend bool) {
 
 // run Run main application.
 func run() {
-	global.LoggingMethod=LoggingMethod
+	global.LoggingMethod = LoggingMethod
 	// fmt.Println(global.LoggingMethod)
-	if global.LoggingMethod!=1&&global.LoggingMethod!=2&&global.LoggingMethod!=3{
-		global.LoggingMethod=1//reset
+	if global.LoggingMethod != 1 && global.LoggingMethod != 2 && global.LoggingMethod != 3 {
+		global.LoggingMethod = 1 //reset
 	}
-	if global.LoggingMethod!=1{
-		file.CreateDir(config.WorkspaceConfig.Path+"/log")
-		for _,v := range config.WorkspaceConfig.Repo{
-			name:=v.ID
-			curDate:=time.Now().Format("2006-01-02 15:04:05")
-			err:=file.CreateFile(fmt.Sprintf("[%s]Repo_%s",curDate,name))
-			if err!=nil{
+	if global.LoggingMethod != 1 {
+		file.CreateDir(config.WorkspaceConfig.Path + "/log")
+		for _, v := range config.WorkspaceConfig.Repo {
+			name := v.ID
+			curDate := time.Now().Format("2006-01-02 15:04:05")
+			err := file.CreateFile(fmt.Sprintf("[%s]Repo_%s", curDate, name))
+			if err != nil {
 				fmt.Println("Error creating log file!")
 				return
 			}
@@ -122,12 +126,15 @@ func run() {
 	if !skipRepoCheck {
 		repo.CheckRepo()
 	} else {
-		logger.Notice("Check skipped.","GoOwl-MainLog")
+		logger.Notice("Check skipped.", "GoOwl-MainLog")
 	}
 	//init all repo
 	var iserr bool = initCloneRepo()
 	if iserr {
-		logger.Error("Err occured. Check and fix it if necessary. Those routes of repos that failed to clone will not be registered.","GoOwl-MainLog")
+		logger.Error(
+			"Err occured. Check and fix it if necessary. Those routes of repos that failed to clone will not be registered.",
+			"GoOwl-MainLog",
+		)
 	}
 	if engine, suspend := initGinEngine(); suspend {
 		return
@@ -137,7 +144,7 @@ func run() {
 			fmt.Sprintf("%s:%d", config.ApplicationConfig.Host, config.ApplicationConfig.Port),
 		)
 	}
-	if global.LoggingMethod==2{
+	if global.LoggingMethod == 2 {
 		fmt.Println("Log write to file only.")
 	}
 	//In order to use ^c

@@ -1,5 +1,6 @@
 package global
-var(
+
+var (
 	// Repo rejected
 	RejectedRepo []string
 )

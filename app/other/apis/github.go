@@ -23,7 +23,7 @@ func GithubHookReceiver(c *gin.Context) {
 		c.JSON(500, gin.H{
 			"Status": "InternalServerError", //InternalServerErrorErr
 		})
-		logger.Warning("Err binding struct!","GoOwl-MainLog")
+		logger.Warning("Err binding struct!", "GoOwl-MainLog")
 		return
 	}
 	ref := strings.Split(hook.Ref, "/")
@@ -41,7 +41,7 @@ func GithubHookReceiver(c *gin.Context) {
 		c.JSON(500, gin.H{
 			"Status": "InternalServerError", //InternalServerErrorErr
 		})
-		logger.Warning("No repo found with id " + repoID,"GoOwl-MainLog")
+		logger.Warning("No repo found with id "+repoID, "GoOwl-MainLog")
 		return
 	}
 	c.JSON(200, gin.H{
@@ -49,11 +49,12 @@ func GithubHookReceiver(c *gin.Context) {
 	})
 	//match trigger pull condition.
 	if config.CheckInSlice(targetRepo.Trigger, action) && triggerBranch == targetRepo.Branch {
-		repo.StartPullAndWorkflow(targetRepo,hook,action)
-	}else{
+		repo.StartPullAndWorkflow(targetRepo, hook, action)
+	} else {
 		logger.Notice(fmt.Sprintf(
 			"Hook received but does not match trigger condition.(%v,%v)\n",
 			targetRepo.ID,
 			repo.GetRepoName(targetRepo),
-		),targetRepo.ID)}
+		), targetRepo.ID)
+	}
 }

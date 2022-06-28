@@ -8,21 +8,24 @@ import (
 	_ "strconv"
 	"time"
 
+	"github.com/fatih/color"
+	"github.com/sydneyowl/GoOwl/common/config"
 	"github.com/sydneyowl/GoOwl/common/file"
 	"github.com/sydneyowl/GoOwl/common/global"
-	"github.com/sydneyowl/GoOwl/common/config"
-	"github.com/fatih/color"
 )
 
+//CreateOnNotExist create log file and log dir if not exists.
 func CreateOnNotExist(id string) error {
 	if global.LoggingMethod != 1 {
 		err := file.CreateDir(config.WorkspaceConfig.Path + "/log")
-		if err!=nil&&!errors.Is(err,os.ErrExist){
+		if err != nil && !errors.Is(err, os.ErrExist) {
 			return err
 		}
 		now := time.Now()
 		curDate := fmt.Sprintf("%d-%d-%d", now.Year(), now.Month(), now.Day())
-		err = file.CreateFile(config.WorkspaceConfig.Path + "/log/" + fmt.Sprintf("[%s]Repo_%s", curDate, id))
+		err = file.CreateFile(
+			config.WorkspaceConfig.Path + "/log/" + fmt.Sprintf("[%s]Repo_%s", curDate, id),
+		)
 		if err != nil {
 			return err
 		}
@@ -30,14 +33,23 @@ func CreateOnNotExist(id string) error {
 	return nil
 }
 
+//AppendLog append log to specified file.
 func AppendLog(id string, msg string) error {
 	now := time.Now()
 	curDate := fmt.Sprintf("%d-%d-%d", now.Year(), now.Month(), now.Day())
-	filePtr, err := os.OpenFile(config.WorkspaceConfig.Path+"/log/"+fmt.Sprintf("[%s]Repo_%s", curDate, id), os.O_WRONLY|os.O_APPEND, 0666)
+	filePtr, err := os.OpenFile(
+		config.WorkspaceConfig.Path+"/log/"+fmt.Sprintf("[%s]Repo_%s", curDate, id),
+		os.O_WRONLY|os.O_APPEND,
+		0666,
+	)
 	if err != nil {
 		if os.IsNotExist(err) {
 			CreateOnNotExist(id)
-			filePtr, _ = os.OpenFile(config.WorkspaceConfig.Path+"/log/"+fmt.Sprintf("[%s]Repo_%s", curDate, id), os.O_WRONLY|os.O_APPEND, 0666)
+			filePtr, _ = os.OpenFile(
+				config.WorkspaceConfig.Path+"/log/"+fmt.Sprintf("[%s]Repo_%s", curDate, id),
+				os.O_WRONLY|os.O_APPEND,
+				0666,
+			)
 		} else {
 			return err
 		}
@@ -97,6 +109,7 @@ func cyan(msg string, addColor bool) string {
 	return msg
 }
 
+//logFactory generates log msg in specified format and write it into file of specified repo or redirect to stdout.
 func logFactory(msg interface{}, id string, level string) {
 	CreateOnNotExist(id)
 	timestr := time.Now().Format("2006-01-02 15:04:05")
@@ -156,21 +169,33 @@ func logFactory(msg interface{}, id string, level string) {
 		AppendLog(id, logInfo)
 	}
 }
+
+//Debug creates log of debug level.
 func Debug(msg interface{}, id string) {
 	logFactory(msg, id, "Debug")
 }
+
+//Info creates log of info level.
 func Info(msg interface{}, id string) {
 	logFactory(msg, id, "Info")
 }
+
+//Notice creates log of notice level.
 func Notice(msg interface{}, id string) {
 	logFactory(msg, id, "Notice")
 }
+
+//Warning creates log of warning level.
 func Warning(msg interface{}, id string) {
 	logFactory(msg, id, "Warning")
 }
+
+//Error creates log of error level.
 func Error(msg interface{}, id string) {
 	logFactory(msg, id, "Error")
 }
+
+//Fatal creates log of fatal level.
 func Fatal(msg interface{}, id string) {
 	logFactory(msg, id, "Fatal")
 }

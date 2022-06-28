@@ -56,9 +56,9 @@ func basicChecking() {
 	}
 	if global.OS != "linux" {
 		warningCount++
-			logger.Warning(
-				"Warning:GoOwl may crash in " + global.OS + " since it is still unstable.","GoOwl-MainLog",
-			)
+		logger.Warning(
+			"Warning:GoOwl may crash in "+global.OS+" since it is still unstable.", "GoOwl-MainLog",
+		)
 	} else {
 		rootPermission := envcheck.CheckIsRoot()
 		if rootPermission {
@@ -66,7 +66,7 @@ func basicChecking() {
 		} else {
 			warningCount++
 			fmt.Println("Checking Permission......", "NO")
-			logger.Warning("Run GoOwl without root may crash!","GoOwl-MainLog")
+			logger.Warning("Run GoOwl without root may crash!", "GoOwl-MainLog")
 		}
 	}
 	diskSpace := envcheck.CheckDiskSpace()
@@ -75,7 +75,7 @@ func basicChecking() {
 	} else {
 		warningCount++
 		fmt.Println("Checking DiskSpace......", "NO")
-		logger.Warning("More then 2G Disk space is suggested for GoOwl!","GoOwl-MainLog")
+		logger.Warning("More then 2G Disk space is suggested for GoOwl!", "GoOwl-MainLog")
 	}
 	memorySpace := envcheck.CheckMemory()
 	if memorySpace {
@@ -83,11 +83,11 @@ func basicChecking() {
 	} else {
 		warningCount++
 		fmt.Println("Checking Memory......", "NO")
-		logger.Warning("Warning:More then 1G Memory is suggested for GoOwl!","GoOwl-MainLog")
+		logger.Warning("Warning:More then 1G Memory is suggested for GoOwl!", "GoOwl-MainLog")
 	}
 }
 
-//Check yaml config here；Create example if not exists;check host env only!
+//appChecking check yaml config here；Create example if not exists;check host env only!
 func appChecking() error {
 	if readable, err := file.CheckYamlReadable(&yamlAddr); !readable {
 		fmt.Println("Checking yaml......", "NO")
@@ -100,7 +100,7 @@ func appChecking() error {
 			// 		return errors.New("cannot read file")
 			// 	}
 			// }
-			logger.Warning("File not exist! Skip...","GoOwl-MainLog")
+			logger.Warning("File not exist! Skip...", "GoOwl-MainLog")
 			return errors.New("Config file not found")
 			// } else {
 			// 	if err := os.Mkdir("./config", 0777); err != nil {
@@ -115,21 +115,21 @@ func appChecking() error {
 			// fmt.Println(stdout.Yellow("Done.Now modify ./config/example.yaml and run again."))
 			// return errors.New("cannot read file")
 		} else {
-			logger.Warning("Warning:File not readable! Skip...","GoOwl-MainLog")
-			return errors.New("Config file not readable")
+			logger.Warning("Warning:File not readable! Skip...", "GoOwl-MainLog")
+			return errors.New("config file not readable")
 		}
 	} else {
 		rawConfig, err := config.LoadConfigFromYaml(yamlAddr) //returns raw viper obj
 		if err := config.CheckViperErr(err); err != nil {
 			fmt.Println("Checking yaml......", "NO")
-			logger.Fatal(err.Error(),"GoOwl-MainLog")
+			logger.Fatal(err.Error(), "GoOwl-MainLog")
 			return errors.New("config error")
 		}
 		fmt.Println("Checking Yaml......", "ok")
 		port := rawConfig.GetInt("settings.application.port")
 		if envcheck.CheckConn("localhost:" + strconv.Itoa(port)) {
 			fmt.Println("Checking Port "+strconv.Itoa(port)+".....", "NO")
-			logger.Fatal("Port " + strconv.Itoa(port) + " is being occupied!","GoOwl-MainLog")
+			logger.Fatal("Port "+strconv.Itoa(port)+" is being occupied!", "GoOwl-MainLog")
 			return errors.New("port being occupied")
 		} else {
 			fmt.Println("Checking Port "+strconv.Itoa(port)+".....", "OK")
@@ -139,7 +139,7 @@ func appChecking() error {
 			fmt.Println("Checking workspace......", "OK")
 		} else {
 			fmt.Println("Checking workspace......", "NO")
-			logger.Warning("Workspace does not exist!Create it manually first!","GoOwl-MainLog")
+			logger.Warning("Workspace does not exist!Create it manually first!", "GoOwl-MainLog")
 			return errors.New("workspace not exist")
 		}
 		return nil
@@ -151,7 +151,7 @@ func runEnvCheck() {
 	basicChecking()
 	fmt.Println("-------------------------------------------")
 	if err := appChecking(); err != nil { //All fatal errors.
-		logger.Notice("Fatal error occured. Fix it before run checkenv.","GoOwl-MainLog")
+		logger.Notice("Fatal error occurred. Fix it before run checkenv.", "GoOwl-MainLog")
 		return
 	}
 	if warningCount != 0 {
@@ -161,8 +161,8 @@ func runEnvCheck() {
 			warningCount,
 			"warning",
 		)
-		logger.Warning(warnOutput,"GoOwl-MainLog")
+		logger.Warning(warnOutput, "GoOwl-MainLog")
 	} else {
-		logger.Warning("Checkenv PASSED"+". You are ready to GoOwl.","GoOwl-MainLog")
+		logger.Warning("Checkenv PASSED"+". You are ready to GoOwl.", "GoOwl-MainLog")
 	}
 }

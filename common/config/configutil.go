@@ -23,7 +23,7 @@ func CheckViperErr(err error) error {
 	if err != nil {
 		if _, ok := err.(viper.UnsupportedConfigError); ok {
 			return errors.New("unknown setting format")
-			// ConfigContentError            = 
+			// ConfigContentError            =
 		} else {
 			return errors.New("yaml Error-Check your yaml content")
 		}
@@ -40,7 +40,9 @@ func CheckInSlice(compareTo []string, from string) bool {
 	}
 	return false
 }
-func InitConfig(yamlAddr *string){
+
+//InitConfig loads config from yaml.
+func InitConfig(yamlAddr *string) {
 	if readable, err := file.CheckYamlReadable(yamlAddr); !readable {
 		fmt.Println(err.Error())
 		return
@@ -51,7 +53,7 @@ func InitConfig(yamlAddr *string){
 		return
 	}
 	if err := rawConfig.Unmarshal(YamlConfig); err != nil {
-		fmt.Println("Unknown Error occurred!","GoOwl-MainLog")
+		fmt.Println("Unknown Error occurred!", "GoOwl-MainLog")
 		return
 	}
 }

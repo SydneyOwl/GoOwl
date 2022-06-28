@@ -1,11 +1,11 @@
 package cmd
 
 import (
+	"errors"
+	"fmt"
 	"github.com/sydneyowl/GoOwl/cmd/checkenv"
 	"github.com/sydneyowl/GoOwl/cmd/run"
 	"github.com/sydneyowl/GoOwl/common/global"
-	"errors"
-	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"

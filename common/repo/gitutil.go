@@ -60,7 +60,6 @@ type PullOptions struct {
 	Timeout time.Duration
 }
 
-
 // Pull pulls updates for the repository.
 func Pull(dst string, opts ...PullOptions) error {
 	var opt PullOptions
@@ -88,17 +87,17 @@ func Pull(dst string, opts ...PullOptions) error {
 					}
 					targetURL = target
 				}
-				} else {
-					target, err := getHttpRepoURL(targetURL, opt.Username, opt.Password)
-					if err != nil {
-						return err
-					}
-					targetURL = target
+			} else {
+				target, err := getHttpRepoURL(targetURL, opt.Username, opt.Password)
+				if err != nil {
+					return err
 				}
-				// username := strings.ReplaceAll(opt.Username, "@", "%40") //Replace @ if mail used as username
-				// targetURL = fmt.Sprintf("%s://%s:%s@%s", urlParse.Scheme, username, opt.Password, urlParse.Host+urlParse.Path)
+				targetURL = target
 			}
+			// username := strings.ReplaceAll(opt.Username, "@", "%40") //Replace @ if mail used as username
+			// targetURL = fmt.Sprintf("%s://%s:%s@%s", urlParse.Scheme, username, opt.Password, urlParse.Host+urlParse.Path)
 		}
+	}
 	if opt.Rebase {
 		cmd.AddArgs("--rebase")
 	}
@@ -114,8 +113,6 @@ func Pull(dst string, opts ...PullOptions) error {
 	_, err := cmd.RunInDirWithTimeout(opt.Timeout, dst)
 	return err
 }
-
-
 
 // clone clones the repository from remote URL to the destination.
 func clone(url, dst string, opts ...CloneOptions) error {
