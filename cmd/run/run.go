@@ -132,7 +132,7 @@ func run() {
 	var iserr bool = initCloneRepo()
 	if iserr {
 		logger.Error(
-			"Err occured. Check and fix it if necessary. Those routes of repos that failed to clone will not be registered.",
+			"Err occurred. Check and fix it if necessary. Those routes of repos that failed to clone will not be registered.",
 			"GoOwl-MainLog",
 		)
 	}
