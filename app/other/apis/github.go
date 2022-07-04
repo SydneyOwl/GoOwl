@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/sydneyowl/GoOwl/common/config"
+	"github.com/sydneyowl/GoOwl/common/database"
 	"github.com/sydneyowl/GoOwl/common/logger"
 	"github.com/sydneyowl/GoOwl/common/repo"
 
@@ -47,14 +48,28 @@ func GithubHookReceiver(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"Status": "accepted", //InternalServerErrorErr
 	})
+	trigger:=&config.TriggerInfo{
+		Action: action,
+		Branch: targetRepo.Branch,
+		HookType: "Github",
+		TriggerBy: hook.Pusher.Name,
+		HashBeforeTrigger: hook.Before,
+		HashAfterTrigger: hook.After,
+	}
 	//match trigger pull condition.
 	if config.CheckInSlice(targetRepo.Trigger, action) && triggerBranch == targetRepo.Branch {
+		trigger.IsAvailableAction=1
 		repo.StartPullAndWorkflow(targetRepo, hook, action)
 	} else {
+		trigger.IsAvailableAction=0
 		logger.Notice(fmt.Sprintf(
 			"Hook received but does not match trigger condition.(%v,%v)\n",
 			targetRepo.ID,
 			repo.GetRepoName(targetRepo),
 		), targetRepo.ID)
+		trigger.IsAvailableAction=0
+	}
+	if err:=database.GetConn().Create(trigger).Error;err!=nil{
+		logger.Warning("Failed to write trigger data to db.","GoOwl-MainLog")
 	}
 }

@@ -3,3 +3,4 @@ GoOwl
 /config/*
 !/config/standard.yaml
 /log
+*.db

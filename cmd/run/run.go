@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/sydneyowl/GoOwl/common/config"
+	"github.com/sydneyowl/GoOwl/common/database"
 	"github.com/sydneyowl/GoOwl/common/file"
 	"github.com/sydneyowl/GoOwl/common/global"
 	"github.com/sydneyowl/GoOwl/common/logger"
@@ -40,6 +41,8 @@ func init() {
 		BoolVar(&skipRepoCheck, "skip-repocheck", false, "Skip check of repo config, including address and authorization.")
 	StartCmd.Flags().
 		IntVarP(&LoggingMethod, "log", "l", 1, "Specify logging method. 1->stdout 2->file 3->both.")
+	StartCmd.Flags().StringVarP(&global.Sqlite3DBPosition, "database-location", "d", "./GoOwl.db", "Specify the position database used by GoOwl storage in. Default is ./GoOwl.db.")
+	StartCmd.Flags().BoolVar(&global.SqlDebug, "enable-sqldebug", false, "Print all sql sentences")
 }
 
 // initGin starts gin framework.
@@ -143,6 +146,9 @@ func run() {
 		go engine.Run(
 			fmt.Sprintf("%s:%d", config.ApplicationConfig.Host, config.ApplicationConfig.Port),
 		)
+	}
+	if err := database.InitDB(); err != nil {
+		fmt.Println(err)
 	}
 	if global.LoggingMethod == 2 {
 		fmt.Println("Log write to file only.")

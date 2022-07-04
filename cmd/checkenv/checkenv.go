@@ -101,7 +101,7 @@ func appChecking() error {
 			// 	}
 			// }
 			logger.Warning("File not exist! Skip...", "GoOwl-MainLog")
-			return errors.New("Config file not found")
+			return errors.New("config file not found")
 			// } else {
 			// 	if err := os.Mkdir("./config", 0777); err != nil {
 			// 		fmt.Println(stdout.Red("ERROR:Failed to create ./config"))

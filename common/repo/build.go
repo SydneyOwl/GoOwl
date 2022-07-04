@@ -2,8 +2,10 @@ package repo
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/sydneyowl/GoOwl/common/config"
+	"github.com/sydneyowl/GoOwl/common/database"
 	"github.com/sydneyowl/GoOwl/common/logger"
 )
 
@@ -43,6 +45,12 @@ func StartPullAndWorkflow(repo config.Repo, hook Hook, action string) {
 		SetBuildStat(repo.ID, 1)
 		logger.Warning(
 			"Pull error: "+err.Error(), repo.ID)
+			database.GetConn().Create(&config.BuildInfo{
+				RepoID:      repo.ID,
+				BuildStatus: 1,
+				Output:      "Failed to pull repo.",
+				TimeCost:    0,
+			})
 		return
 	}
 	//don't throw unrelated exception
@@ -53,16 +61,31 @@ func StartPullAndWorkflow(repo config.Repo, hook Hook, action string) {
 		repo.Buildscript,
 		LocalRepoAddr(repo),
 	), repo.ID)
-	standout, err := RunScript(repo)
+	cost, standout, err := RunScript(repo)
 	if err != nil {
 		SetBuildStat(repo.ID, 1)
 		logger.Error(
-			"Executing script failed:"+err.Error(), repo.ID,
+			"Executing script failed:"+err.Error()+"\n time cost:"+strconv.Itoa(int(cost))+"ms", repo.ID,
 		)
+
+			database.GetConn().Create(&config.BuildInfo{
+				RepoID:      repo.ID,
+				BuildStatus: 1,
+				Output:      err.Error(),
+				TimeCost:    cost,
+			})
 		return
 	} else {
-		logger.Info("Script output:"+standout, repo.ID)
+		logger.Info("Script output:"+standout+"\n time cost:"+strconv.Itoa(int(cost))+"ms", repo.ID)
 	}
 	logger.Info("CICD Done.", repo.ID)
 	SetBuildStat(repo.ID, 3)
+	if err:=database.GetConn().Create(&config.BuildInfo{
+		RepoID:      repo.ID,
+		BuildStatus: 3,
+		Output:      standout,
+		TimeCost:    cost,
+	}).Error;err!=nil{
+		logger.Warning("Failed to write build data to db","GoOwl-MainLog")
+	}
 }

@@ -90,7 +90,9 @@ Run `./GoOwl --help` to get more info.
 
 Run `./GoOwl checkenv` to check if everything work well.  
 
-Use `-l [1,2,3]` or `--log [1,2,3]` to use log func. 1 means output to stdout, 2 means output to file only, 3 means output to both file and stdout. They all storaged in `workspace.path/log` specified in the yml by default when log to file is enabled..
+GoOwl uses Sqlite as database by default. Use -d(--database-location) to specify the position of the database. Default is `./GoOwl.db`; Also try --enable-sqldebug to print all sql sentences. 
+
+Use `-l [1,2,3]` or `--log [1,2,3]` to use log func. 1 means output to stdout, 2 means output to file only, 3 means output to both file and stdout. They all storaged in `workspace.path/log` specified in the yml by default when log to file is enabled.
 
 To start the hook listener and cicd server, run `./GoOwl run`. GoOwl will automatically clone repo at the first time. You need to input "yes" if you uses ssh to clone them. If you'd like to ignore repo checking(whether config is properly filled), use `--skip-repocheck`. 
 

@@ -10,6 +10,7 @@ type Hook struct {
 	Pusher Pusher
 }
 type Pusher struct {
+	//Github
 	Name string
 	//Gogs
 	Username string
