@@ -110,7 +110,7 @@ func Pull(dst string, opts ...PullOptions) error {
 			cmd.AddArgs(opt.Branch)
 		}
 	}
-	_,_, err := cmd.RunInDirWithTimeout(opt.Timeout, dst)
+	_, _, err := cmd.RunInDirWithTimeout(opt.Timeout, dst)
 	return err
 }
 

@@ -64,3 +64,12 @@ func isExist(path string) bool {
 	}
 	return true
 }
+
+//CalcSize calculates size of specified file/dir. Returns byte.
+func CalcSize(path string) (int64, error) {
+	if file, err := os.Stat(path); err != nil {
+		return 0, err
+	} else {
+		return file.Size(), nil
+	}
+}

@@ -45,12 +45,12 @@ func StartPullAndWorkflow(repo config.Repo, hook Hook, action string) {
 		SetBuildStat(repo.ID, 1)
 		logger.Warning(
 			"Pull error: "+err.Error(), repo.ID)
-			database.GetConn().Create(&config.BuildInfo{
-				RepoID:      repo.ID,
-				BuildStatus: 1,
-				Output:      "Failed to pull repo.",
-				TimeCost:    0,
-			})
+		database.GetConn().Create(&config.BuildInfo{
+			RepoID:      repo.ID,
+			BuildStatus: 1,
+			Output:      "Failed to pull repo.",
+			TimeCost:    0,
+		})
 		return
 	}
 	//don't throw unrelated exception
@@ -65,27 +65,30 @@ func StartPullAndWorkflow(repo config.Repo, hook Hook, action string) {
 	if err != nil {
 		SetBuildStat(repo.ID, 1)
 		logger.Error(
-			"Executing script failed:"+err.Error()+"\n time cost:"+strconv.Itoa(int(cost))+"ms", repo.ID,
+			"Executing script failed:"+err.Error()+"\n time cost:"+strconv.Itoa(
+				int(cost),
+			)+"ms",
+			repo.ID,
 		)
 
-			database.GetConn().Create(&config.BuildInfo{
-				RepoID:      repo.ID,
-				BuildStatus: 1,
-				Output:      err.Error(),
-				TimeCost:    cost,
-			})
+		database.GetConn().Create(&config.BuildInfo{
+			RepoID:      repo.ID,
+			BuildStatus: 1,
+			Output:      err.Error(),
+			TimeCost:    cost,
+		})
 		return
 	} else {
 		logger.Info("Script output:"+standout+"\n time cost:"+strconv.Itoa(int(cost))+"ms", repo.ID)
 	}
 	logger.Info("CICD Done.", repo.ID)
 	SetBuildStat(repo.ID, 3)
-	if err:=database.GetConn().Create(&config.BuildInfo{
+	if err := database.GetConn().Create(&config.BuildInfo{
 		RepoID:      repo.ID,
 		BuildStatus: 3,
 		Output:      standout,
 		TimeCost:    cost,
-	}).Error;err!=nil{
-		logger.Warning("Failed to write build data to db","GoOwl-MainLog")
+	}).Error; err != nil {
+		logger.Warning("Failed to write build data to db", "GoOwl-MainLog")
 	}
 }

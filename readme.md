@@ -106,10 +106,13 @@ Here're all routes you've registered:
 /github/github-test-token/hook---------------->Hook for repo github-test-token,type:github
 /github/github-test-ssh/hook---------------->Hook for repo github-test-ssh,type:github
 /status/:repoid/status.svg---------------->:repoid should be replaced to get repo status
+/status/:repoid/info---------------->:repoid should be replaced to get repo status
 ```
 you may use `https://domain:port/gogs/gogs-test-token/hook` as the hook address of repo gogs-test-token for example. When GoOwl received webhook, it will start executing script automatically and print result out. However, if repo failed to clone on start, the route of the repo won't be registered, which means the hook of the repo is unavailable. 
 
 If you need a badge showing build status, you should use `/status/:repoid/status.svg` as the badge address, and the :repoid must be one of your repo ids. For example, `https://owl:1234/status/github-test-ssh/status.svg`
+
+To get detailed info of repo, use `/status/:repoid/info`. For example, `https://owl:1234/status/github-test-ssh/info`
 
 full example:
 ![](./md_pic/1.png)
@@ -118,6 +121,6 @@ full example:
 ## More...
 `GoOwl` may be buggy currently. Issues are welcome.
 
-**Some part (/config/command and /app/other) of GoOwl comes from [gogs](https://github.com/gogs/git-module) and [go-admin](https://github.com/go-admin-team/go-admin) Thanks!**
+**Some part (/config/command) of GoOwl comes from [gogs](https://github.com/gogs/git-module); Thanks!**
 
 **GoOwl uses [go-badge]("https://github.com/narqo/go-badge") to generate badge.**

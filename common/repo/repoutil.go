@@ -231,17 +231,20 @@ func SearchRepo(ID string) (config.Repo, error) {
 }
 
 //Runscript run script inside repo dir.
-func RunScript(repo config.Repo) (int64,string, error) {
+func RunScript(repo config.Repo) (int64, string, error) {
 	if repo.Buildscript == "" {
-		return 0,"", fmt.Errorf(
+		return 0, "", fmt.Errorf(
 			"buildscript of repo %s (%v)is empty. CI suspended",
 			repo.ID,
 			GetRepoName(repo),
 		)
 	}
 	command := command.CICDCommand(repo.Buildscript)
-	cost,result, err := command.RunInDirWithTimeout(time.Hour, LocalRepoAddr(repo)) //Hour of the timeout
-	return cost,string(result), err
+	cost, result, err := command.RunInDirWithTimeout(
+		time.Hour,
+		LocalRepoAddr(repo),
+	) //Hour of the timeout
+	return cost, string(result), err
 }
 
 // IsDuplcatedRepo check if repo is dupl in config.

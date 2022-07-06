@@ -12,6 +12,7 @@ import (
 	"github.com/sydneyowl/GoOwl/common/repo"
 	"gorm.io/gorm"
 )
+
 //ReportBuildStatus returns svg reporting build status.
 func ReportBuildStatus(c *gin.Context) {
 	repoid := c.Param("repoid")
@@ -22,15 +23,16 @@ func ReportBuildStatus(c *gin.Context) {
 		//returnnofoundhere
 		badgeData, err = badge.RenderBytes("Repo", "Not Found", badge.ColorLightgray)
 	} else {
-		buildstat:=&config.BuildInfo{}
-		if err:=database.GetConn().Select("build_status").Where("repo_id=?",repoid).Order("created_at desc").First(buildstat).Error;err!=nil{
-			if errors.Is(gorm.ErrRecordNotFound,err){
-				buildstat.BuildStatus=4
-			}else{
-			buildstat.BuildStatus=5
-		}}
+		buildstat := &config.BuildInfo{}
+		if err := database.GetConn().Select("build_status").Where("repo_id=?", repoid).Order("created_at desc").First(buildstat).Error; err != nil {
+			if errors.Is(gorm.ErrRecordNotFound, err) {
+				buildstat.BuildStatus = 4
+			} else {
+				buildstat.BuildStatus = 5
+			}
+		}
 		switch buildstat.BuildStatus {
-		case 0,4:
+		case 0, 4:
 			badgeData, err = badge.RenderBytes(repo.GetRepoOriginalName(targetRepo)+" Build", "Unknown", badge.ColorYellowgreen)
 		case 1:
 			badgeData, err = badge.RenderBytes(repo.GetRepoOriginalName(targetRepo)+" Build", "Failed", badge.ColorOrange)
@@ -40,7 +42,7 @@ func ReportBuildStatus(c *gin.Context) {
 			badgeData, err = badge.RenderBytes(repo.GetRepoOriginalName(targetRepo)+" Build", "Passed", badge.ColorGreen)
 		case 5:
 			logger.Warning("No repo found in current database!", "GoOwl-MainLog")
-			badgeData,err=badge.RenderBytes("GoOWL","ERROR",badge.ColorRed)
+			badgeData, err = badge.RenderBytes("GoOWL", "ERROR", badge.ColorRed)
 		}
 	}
 	if err != nil {

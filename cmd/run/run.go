@@ -41,7 +41,8 @@ func init() {
 		BoolVar(&skipRepoCheck, "skip-repocheck", false, "Skip check of repo config, including address and authorization.")
 	StartCmd.Flags().
 		IntVarP(&LoggingMethod, "log", "l", 1, "Specify logging method. 1->stdout 2->file 3->both.")
-	StartCmd.Flags().StringVarP(&global.Sqlite3DBPosition, "database-location", "d", "./GoOwl.db", "Specify the position database used by GoOwl storage in. Default is ./GoOwl.db.")
+	StartCmd.Flags().
+		StringVarP(&global.Sqlite3DBPosition, "database-location", "d", "./GoOwl.db", "Specify the position database used by GoOwl storage in. Default is ./GoOwl.db.")
 	StartCmd.Flags().BoolVar(&global.SqlDebug, "enable-sqldebug", false, "Print all sql sentences")
 }
 

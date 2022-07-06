@@ -228,23 +228,22 @@ func concatenateError(err error, stderr string) error {
 
 // RunInDirWithTimeout executes the command in given directory and timeout
 // duration. It returns stdout in []byte and error (combined with stderr).
-func (c *Command) RunInDirWithTimeout(timeout time.Duration, dir string) (int64,[]byte, error) {
+func (c *Command) RunInDirWithTimeout(timeout time.Duration, dir string) (int64, []byte, error) {
 	stdout := new(bytes.Buffer)
 	stderr := new(bytes.Buffer)
-	startTime :=time.Now()
-	err := c.RunInDirPipelineWithTimeout(timeout, stdout, stderr, dir);
-	cost:=time.Since(startTime).Milliseconds()
-	if  err != nil {
-		return cost,nil, concatenateError(err, stderr.String())
+	startTime := time.Now()
+	err := c.RunInDirPipelineWithTimeout(timeout, stdout, stderr, dir)
+	cost := time.Since(startTime).Milliseconds()
+	if err != nil {
+		return cost, nil, concatenateError(err, stderr.String())
 	}
-	return cost,stdout.Bytes(), nil
+	return cost, stdout.Bytes(), nil
 }
-
 
 // RunWithTimeout executes the command in working directory and given timeout
 // duration. It returns stdout in string and error (combined with stderr).
 func (c *Command) RunWithTimeout(timeout time.Duration) ([]byte, error) {
-	_,stdout, err := c.RunInDirWithTimeout(timeout, "")
+	_, stdout, err := c.RunInDirWithTimeout(timeout, "")
 	if err != nil {
 		return nil, err
 	}
