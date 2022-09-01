@@ -41,7 +41,7 @@ func CheckInSlice(compareTo []string, from string) bool {
 	return false
 }
 
-//InitConfig loads config from yaml.
+// InitConfig loads config from yaml.
 func InitConfig(yamlAddr *string) {
 	if readable, err := file.CheckYamlReadable(yamlAddr); !readable {
 		fmt.Println(err.Error())

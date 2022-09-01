@@ -57,7 +57,7 @@ func NewCommand(args ...string) *Command {
 	}
 }
 
-//SSHCommand creates prefix in ssh.
+// SSHCommand creates prefix in ssh.
 func SSHCommand(sshkeypath string, args ...string) *Command {
 	return &Command{
 		name: "git",

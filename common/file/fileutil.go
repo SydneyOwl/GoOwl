@@ -23,7 +23,7 @@ func CheckPathExists(path string) (bool, error) {
 	return false, err
 }
 
-//GetCwd returns current path.
+// GetCwd returns current path.
 func GetCwd() string {
 	path, err := os.Getwd()
 	if err != nil {
@@ -32,7 +32,7 @@ func GetCwd() string {
 	return path
 }
 
-//CreateFile creates file on specified path.
+// CreateFile creates file on specified path.
 func CreateFile(filepath string) error {
 	if !isExist(filepath) {
 		f, err := os.Create(filepath)
@@ -40,11 +40,6 @@ func CreateFile(filepath string) error {
 		return err
 	}
 	return nil
-}
-
-//CreateDirOnPwd create an diectory on current position.
-func CreateDirOnPwd() {
-	CreateDir(GetCwd())
 }
 
 // CreateDir create dir recursively.
@@ -65,7 +60,7 @@ func isExist(path string) bool {
 	return true
 }
 
-//CalcSize calculates size of specified file/dir. Returns byte.
+// CalcSize calculates size of specified file/dir. Returns byte.
 func CalcSize(path string) (int64, error) {
 	if file, err := os.Stat(path); err != nil {
 		return 0, err

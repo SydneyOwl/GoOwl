@@ -7,41 +7,36 @@ settings:
   workspace:
     path: /home/golang-coder/Workspace
     repo:
-      -
-        id: gogs-test-token
+      - id: gogs-test-token
         type: gogs
-        trigger: ['push']
+        trigger: [ 'push' ]
         repoaddr: https://git....
         token: abc
         buildscript: /home/golang-coder/Workspace/script/test.sh
         branch: master
-      -
-        id: gogs-test-up-userpass
+      - id: gogs-test-up-userpass
         type: gogs
         trigger: push
         repoaddr: https://git
         username: 123
         password: 123
-        buildscript: 
+        buildscript:
         branch: master
-      -
-        id: gogs-test-ssh
+      - id: gogs-test-ssh
         type: gogs
-        trigger: ['push']
+        trigger: [ 'push' ]
         repoaddr: git@git...
         sshkeyaddr: /home/golang-coder/Workspace/id_rsa
-        buildscript: 
+        buildscript:
         branch: master
-      -
-        id: github-test-token
+      - id: github-test-token
         type: github
         trigger: push
         repoaddr: https://git
         token: ghp_....
         buildscript: /home/golang-coder/Workspace/script/test1.sh
         branch: main
-      -
-        id: github-test-ssh
+      - id: github-test-ssh
         type: github
         trigger: push
         repoaddr: git@git...

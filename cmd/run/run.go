@@ -32,7 +32,7 @@ var (
 	}
 )
 
-//Specify yaml before run
+// Specify yaml before run
 func init() {
 	addrConfig := file.GetCwd() + "/config/settings.yaml"
 	StartCmd.Flags().
@@ -54,7 +54,7 @@ func initGin() *gin.Engine {
 	return r
 }
 
-//initCloneRepo clones repo on not exist
+// initCloneRepo clones repo on not exist
 func initCloneRepo() bool {
 	var exists bool
 	//Clone repo unexists
@@ -71,7 +71,7 @@ func initCloneRepo() bool {
 	return exists
 }
 
-//initGinEngine init gin engine.
+// initGinEngine init gin engine.
 func initGinEngine() (engine *gin.Engine, suspend bool) {
 	//set to release mode
 	if config.ApplicationConfig.Mode == "release" {
@@ -106,7 +106,7 @@ func initGinEngine() (engine *gin.Engine, suspend bool) {
 	return
 }
 
-// run Run main application.
+// run Runs main application.
 func run() {
 	global.LoggingMethod = LoggingMethod
 	// fmt.Println(global.LoggingMethod)
@@ -114,7 +114,11 @@ func run() {
 		global.LoggingMethod = 1 //reset
 	}
 	if global.LoggingMethod != 1 {
-		file.CreateDir(config.WorkspaceConfig.Path + "/log")
+		err := file.CreateDir(config.WorkspaceConfig.Path + "/log")
+		if err != nil {
+			fmt.Println("Error creating log dir!")
+			return
+		}
 		for _, v := range config.WorkspaceConfig.Repo {
 			name := v.ID
 			curDate := time.Now().Format("2006-01-02 15:04:05")
@@ -143,10 +147,18 @@ func run() {
 	if engine, suspend := initGinEngine(); suspend {
 		return
 	} else {
-		//goroutine to use interreput
-		go engine.Run(
-			fmt.Sprintf("%s:%d", config.ApplicationConfig.Host, config.ApplicationConfig.Port),
-		)
+		//goroutine here
+		go func() {
+			err := engine.Run(
+				fmt.Sprintf("%s:%d", config.ApplicationConfig.Host, config.ApplicationConfig.Port),
+			)
+			if err != nil {
+				logger.Fatal(
+					"Cannot start Gin framework:"+err.Error(),
+					"GoOwl-MainLog",
+				)
+			}
+		}()
 	}
 	if err := database.InitDB(); err != nil {
 		fmt.Println(err)

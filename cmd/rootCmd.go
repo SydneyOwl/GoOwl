@@ -19,7 +19,7 @@ var rootCmd = &cobra.Command{
 	Args: func(cmd *cobra.Command, args []string) error {
 		if len(args) < 1 {
 			tip()
-			return errors.New("At least one arg is required!")
+			return errors.New("at least one arg is required!")
 		}
 		return nil
 	},
@@ -39,7 +39,7 @@ func tip() {
 	fmt.Println("Use GoOwl -h for help.")
 }
 
-//Execute is the entrance of Gowl.
+// Execute is the entrance of Gowl.
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
 		os.Exit(-1)

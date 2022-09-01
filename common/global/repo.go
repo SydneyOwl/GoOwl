@@ -1,6 +1,6 @@
 package global
 
 var (
-	// Repo rejected
+	// RejectedRepo storages Repo rejected
 	RejectedRepo []string
 )

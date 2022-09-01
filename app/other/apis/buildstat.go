@@ -13,7 +13,7 @@ import (
 	"gorm.io/gorm"
 )
 
-//ReportBuildStatus returns svg reporting build status.
+// ReportBuildStatus returns svg reporting build status.
 func ReportBuildStatus(c *gin.Context) {
 	repoid := c.Param("repoid")
 	targetRepo, err := repo.SearchRepo(repoid)

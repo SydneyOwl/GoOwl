@@ -35,20 +35,20 @@ func CheckIsRoot() bool {
 	return uid == 0
 }
 
-// CheckDiskSpece check if theres enough space to run GoOwl; Minium is 2G.
+// CheckDiskSpace check if there's enough space to run GoOwl; Minimum is 2G.
 func CheckDiskSpace() bool {
 	pwd, _ := os.Getwd()
 	diskInfo, _ := disk.Usage(pwd)
 	return float64(diskInfo.Free)/1024/1024/1024 > 2
 }
 
-// CheckMemory check if theres enough memory to run GoOwl; Minium is 128M.
+// CheckMemory check if there's enough memory to run GoOwl; Minimum is 128M.
 func CheckMemory() bool {
 	memoryInfo, _ := mem.VirtualMemory()
 	return float64(memoryInfo.Total)/1024/1024 > 128
 }
 
-// CheckDocker check if GoOwl running in docker environment; Minium is 128M. Return -1 if unknown;0 if false and 1 if true
+// CheckDocker check if GoOwl running in docker environment; Minimum is 128M. Return -1 if unknown;0 if false and 1 if true
 func CheckDocker() int {
 	isDockerEnv := false
 	if _, err := os.Stat("/.dockerenv"); err == nil {

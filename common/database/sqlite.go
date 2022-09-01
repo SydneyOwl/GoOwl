@@ -10,14 +10,12 @@ import (
 )
 
 var (
-	db          *gorm.DB
-	IsConnected bool = true
+	db *gorm.DB
 )
 
-//InitDB init settings of specified db.
+// InitDB init settings of specified db.
 func InitDB() error {
 	if d, err := gorm.Open(sqlite.Open(global.Sqlite3DBPosition), &gorm.Config{}); err != nil {
-		IsConnected = false
 		return fmt.Errorf("connect database failed. Some functions are disabled")
 	} else {
 		db = d
@@ -28,7 +26,7 @@ func InitDB() error {
 	}
 }
 
-//Getconn returns db obj. Add debug if specified on start.
+// GetConn returns db obj. Add debug if specified on start.
 func GetConn() *gorm.DB {
 	if !global.SqlDebug {
 		return db

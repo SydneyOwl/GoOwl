@@ -14,7 +14,7 @@ import (
 	"github.com/sydneyowl/GoOwl/common/logger"
 )
 
-//Errors that does not infect cicd.
+// Errors that does not infect cicd.
 type UncriticalError struct {
 	Uerror error
 	ID     string
@@ -44,7 +44,7 @@ func getHttpRepoURL(url string, username string, password string) (string, error
 	), nil
 }
 
-//getTokenRepoURL returns token format url.
+// getTokenRepoURL returns token format url.
 func getTokenRepoURL(url string, token string) (string, error) {
 	urlParse, err1 := UrlParse.Parse(url)
 	if err1 != nil {
@@ -106,7 +106,7 @@ func CheckRepoConfig(repoarray []config.Repo) (string, []UncriticalError, error)
 					"repo delare itself as public since neither username/password nor token is specified",
 				),
 			})
-			continue //Ignore since it is an public repo
+			continue //Ignore since it is a public repo
 		}
 		if v.Sshkeyaddr == "" && Checkprotocol(v) == "http" { //http protocol
 			if v.Type == "github" && v.Token == "" {
@@ -137,7 +137,7 @@ func CheckRepoConfig(repoarray []config.Repo) (string, []UncriticalError, error)
 			})
 		}
 	}
-	//return only if there're no more critial error gened.
+	//return only if there's no more critical error generated.
 	if len(bser) != 0 {
 		return "", bser, nil
 	}
@@ -187,7 +187,7 @@ func GetRepoOriginalName(repo config.Repo) string {
 	return name[0 : len(name)-4]
 }
 
-//CloneOnNotExist clone repo not exist locally
+// CloneOnNotExist clone repo not exist locally
 func CloneOnNotExist(repo config.Repo) error {
 	localAddr := LocalRepoAddr(repo)
 	exists, err := file.CheckPathExists(localAddr)
@@ -218,7 +218,7 @@ func CloneOnNotExist(repo config.Repo) error {
 	return clone(repo.Repoaddr, localAddr, option)
 }
 
-//Searchinfo returns repo with specified id.
+// Searchinfo returns repo with specified id.
 func SearchRepo(ID string) (config.Repo, error) {
 	for _, v := range config.WorkspaceConfig.Repo {
 		if v.ID == ID {
@@ -230,7 +230,7 @@ func SearchRepo(ID string) (config.Repo, error) {
 	}, errors.New("no found")
 }
 
-//Runscript run script inside repo dir.
+// Runscript run script inside repo dir.
 func RunScript(repo config.Repo) (int64, string, error) {
 	if repo.Buildscript == "" {
 		return 0, "", fmt.Errorf(
@@ -281,7 +281,7 @@ func CheckRepo() {
 	}
 }
 
-//SetBuildStat modify build status of repo.
+// SetBuildStat modify build status of repo.
 func SetBuildStat(id string, stat int) {
 	for i, v := range config.WorkspaceConfig.Repo {
 		if v.ID == id {

@@ -12,7 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// GithubHookReceiver processes hook received in github format and pull the repo/run the script if condition matched.
+// GithubHookReceiver processes hook received in GitHub format and pull the repo/run the script if condition matched.
 func GithubHookReceiver(c *gin.Context) {
 	fmt.Println("Hook received from github...")
 	action := c.GetHeader("X-GitHub-Event")

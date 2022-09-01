@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-//mulitVersion
+// mulitVersion
 var (
 	GogsRouterGroup   = make([]func(*gin.RouterGroup), 0)
 	GithubRouterGroup = make([]func(*gin.RouterGroup), 0)

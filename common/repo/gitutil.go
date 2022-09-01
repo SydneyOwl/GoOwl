@@ -7,7 +7,7 @@ import (
 	"github.com/sydneyowl/GoOwl/common/command"
 )
 
-//Gogs code under mit.
+// Gogs code under mit.
 type CloneOptions struct {
 	//hook type
 	Type string
@@ -21,7 +21,7 @@ type CloneOptions struct {
 	Bare bool
 	// Indicates whether to suppress the log output.
 	Quiet bool
-	// The branch to checkout for the working tree when Bare=false.
+	// The branch to check out for the working tree when Bare=false.
 	Branch string
 	//Under http protocol
 	Username string
@@ -114,7 +114,7 @@ func Pull(dst string, opts ...PullOptions) error {
 	return err
 }
 
-// clone clones the repository from remote URL to the destination.
+// clone Clones the repository from remote URL to the destination.
 func clone(url, dst string, opts ...CloneOptions) error {
 	var opt CloneOptions
 	var targetURL = url

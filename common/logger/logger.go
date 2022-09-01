@@ -14,7 +14,7 @@ import (
 	"github.com/sydneyowl/GoOwl/common/global"
 )
 
-//CreateOnNotExist create log file and log dir if not exists.
+// CreateOnNotExist create log file and log dir if not exists.
 func CreateOnNotExist(id string) error {
 	if global.LoggingMethod != 1 {
 		err := file.CreateDir(config.WorkspaceConfig.Path + "/log")
@@ -33,7 +33,7 @@ func CreateOnNotExist(id string) error {
 	return nil
 }
 
-//AppendLog append log to specified file.
+// AppendLog append log to specified file.
 func AppendLog(id string, msg string) error {
 	now := time.Now()
 	curDate := fmt.Sprintf("%d-%d-%d", now.Year(), now.Month(), now.Day())
@@ -109,7 +109,7 @@ func cyan(msg string, addColor bool) string {
 	return msg
 }
 
-//logFactory generates log msg in specified format and write it into file of specified repo or redirect to stdout.
+// logFactory generates log msg in specified format and write it into file of specified repo or redirect to stdout.
 func logFactory(msg interface{}, id string, level string) {
 	CreateOnNotExist(id)
 	timestr := time.Now().Format("2006-01-02 15:04:05")
@@ -170,32 +170,32 @@ func logFactory(msg interface{}, id string, level string) {
 	}
 }
 
-//Debug creates log of debug level.
+// Debug creates log of debug level.
 func Debug(msg interface{}, id string) {
 	logFactory(msg, id, "Debug")
 }
 
-//Info creates log of info level.
+// Info creates log of info level.
 func Info(msg interface{}, id string) {
 	logFactory(msg, id, "Info")
 }
 
-//Notice creates log of notice level.
+// Notice creates log of notice level.
 func Notice(msg interface{}, id string) {
 	logFactory(msg, id, "Notice")
 }
 
-//Warning creates log of warning level.
+// Warning creates log of warning level.
 func Warning(msg interface{}, id string) {
 	logFactory(msg, id, "Warning")
 }
 
-//Error creates log of error level.
+// Error creates log of error level.
 func Error(msg interface{}, id string) {
 	logFactory(msg, id, "Error")
 }
 
-//Fatal creates log of fatal level.
+// Fatal creates log of fatal level.
 func Fatal(msg interface{}, id string) {
 	logFactory(msg, id, "Fatal")
 }

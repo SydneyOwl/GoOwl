@@ -1,6 +1,8 @@
 main
 GoOwl
+GoOwl.exe
 /config/*
 !/config/standard.yaml
 /log
 *.db
+.idea
