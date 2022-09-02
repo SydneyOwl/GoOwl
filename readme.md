@@ -10,11 +10,18 @@ GoOwl is a basic CI/CD tool. By filling a simple yaml file, you can:
 - [x]  pull specified repos when receiving hooks
 - [x]  execute script when repos are pulled
 - [x]  return a badge showing build status
+
+## TODO
+
 - [ ]  add support of virtual environment
+- [ ]  add support of Windows 7+
+- [ ]  add support of macOS BigSur+
 
 ## How to use GoOwl
 
-***Windows and Mac releases are not reliable since they're not being tested.***
+We recommend you running GoOwl in docker environment for safety consideration!
+
+You can choose downloading binary files from [Releases](https://github.com/SydneyOwl/GoOwl/releases/latest) directly, or build it yourself. See [Build](#Build) section for more.
 
 Firstly you need to fill a yaml file, which is located at config/standard.yaml and could be found in this repo. It
 should look like this if filled correctly:

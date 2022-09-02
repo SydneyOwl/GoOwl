@@ -29,7 +29,6 @@ jobs:
     strategy:
       matrix:
         os:
-          - windows-latest
           - ubuntu-latest
           - macos-latest
         GOARCH:
@@ -71,19 +70,6 @@ jobs:
           name: GoOwl-${{ matrix.GOARCH }}
           path: GoOwl
 
-      - name: Build on Windows
-        if: ${{ matrix.os == 'windows-latest' }}
-        env:
-          GOARCH: ${{ matrix.GOARCH }}
-        run: go build GoOwl.go
-
-      - name: Upload GoOwl.exe on Windows
-        if: ${{ matrix.os == 'windows-latest' }}
-        uses: actions/upload-artifact@v2
-        with:
-          name: GoOwl-${{ matrix.GOARCH }}.exe
-          path: GoOwl.exe
-
       - name: Build on macOS
         if: ${{ matrix.os == 'macos-latest' }}
         env:
@@ -118,15 +104,4 @@ jobs:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
           asset_path: GoOwl
           asset_name: GoOwl-macOS-${{ matrix.GOARCH }}
-          asset_content_type: application/octet-stream
-
-      - name: Upload assets for windows
-        if: ${{ matrix.os == 'windows-latest' }}
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
-        with:
-          upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: GoOwl.exe
-          asset_name: GoOwl-${{ matrix.GOARCH }}.exe
           asset_content_type: application/octet-stream
