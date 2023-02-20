@@ -1,8 +1,11 @@
 # GoOwl - A simple command-line CI/CD Tool
 
 ![Go](https://github.com/sydneyowl/GoOwl/actions/workflows/GoOwl_Build.yml/badge.svg) [![card](https://goreportcard.com/badge/github.com/sydneyowl/GoOwl)](https://goreportcard.com/report/github.com/sydneyowl/GoOwl) [![CodeQL](https://github.com/SydneyOwl/GoOwl/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/SydneyOwl/GoOwl/actions/workflows/codeql-analysis.yml)  ![go_version](https://img.shields.io/badge/Go-1.18.1-brightgreen) [![Go Reference](https://pkg.go.dev/badge/github.com/sydneyowl/GoOwl.svg)](https://pkg.go.dev/github.com/sydneyowl/GoOwl) [![Release](https://img.shields.io/github/v/tag/SydneyOwl/GoOwl)](https://github.com/sydneyowl/GoOwl/releases/latest)
+## WARNING
+GOOWL IS NO LONGER UNDER MAINTAINCE. A NEW VERSION OF GOOWL IS BEING REFACTORED. 
 
 ## What is GoOwl
+**DO NO USE GOOWL IN PRODUCTION ENV!!!**
 
 GoOwl is a basic CI/CD tool. By filling a simple yaml file, you can:
 
